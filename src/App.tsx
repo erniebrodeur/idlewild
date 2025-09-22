@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './index.css'
+import gameData from './data/game-data.json'
 
 /*
   Simple incremental core inspired by Theory of Magic / The Kitten Game:
@@ -36,18 +37,11 @@ type GameState = {
 const SAVE_KEY = 'idlewild:v2'
 
 function defaultState(): GameState {
-  return {
-    resources: [
-      { id: 'credits', name: 'Credits', amount: 0 },
-      { id: 'energy', name: 'Energy', amount: 0 }
-    ],
-    producers: [
-      { id: 'drone', name: 'Mining Drone', resource: 'credits', count: 0, baseCost: 12, growth: 1.13, power: 1 },
-      { id: 'lab', name: 'Research Lab', resource: 'energy', count: 0, baseCost: 40, growth: 1.18, power: 0.7 }
-    ],
-    producerLevel: 1,
-    lastSaved: Date.now()
-  }
+  // Initialize from JSON game data file and attach lastSaved
+  const resources = (gameData.resources || []).map((r: any) => ({ ...r }))
+  const producers = (gameData.producers || []).map((p: any) => ({ ...p }))
+  const producerLevel = gameData.producerLevel || 1
+  return { resources, producers, producerLevel, lastSaved: Date.now() }
 }
 
 function useIncrementalGame(tickInterval = 1000) {

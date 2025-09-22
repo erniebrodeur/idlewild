@@ -1,0 +1,11 @@
+{
+  "resources": [
+    { "id": "credits", "name": "Credits", "amount": 0 },
+    { "id": "nanites", "name": "Nanites", "amount": 0 }
+  ],
+  "producers": [
+    { "id": "harvester", "name": "Harvester", "resource": "credits", "count": 0, "baseCost": 10, "growth": 1.15, "power": 1 },
+    { "id": "drone", "name": "Repair Drone", "resource": "nanites", "count": 0, "baseCost": 25, "growth": 1.2, "power": 0.5 }
+  ],
+  "producerLevel": 1
+}
