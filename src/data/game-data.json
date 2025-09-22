@@ -8,4 +8,9 @@
     { "id": "drone", "name": "Repair Drone", "resource": "nanites", "count": 0, "baseCost": 25, "growth": 1.2, "power": 0.5 }
   ],
   "producerLevel": 1
+  ,
+  "upgrades": [
+    { "id": "efficiency_1", "name": "Improved Gearings", "desc": "Harvesters produce +20%", "cost": 50, "effect": { "type": "multiplier", "target": "harvester", "value": 1.2 } },
+    { "id": "research_1", "name": "Basic Research", "desc": "Labs produce +25%", "cost": 120, "effect": { "type": "multiplier", "target": "drone", "value": 1.25 } }
+  ]
 }

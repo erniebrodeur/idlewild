@@ -31,6 +31,7 @@ type GameState = {
   resources: Resource[]
   producers: Producer[]
   producerLevel: number
+  upgradesPurchased?: string[]
   lastSaved: number
 }
 
@@ -49,6 +50,21 @@ function useIncrementalGame(tickInterval = 1000) {
     try {
       const raw = localStorage.getItem(SAVE_KEY)
       if (raw) return JSON.parse(raw) as GameState
+      // migrate from old v1 save if present
+      const old = localStorage.getItem('idlewild:v1')
+      if (old) {
+        try {
+          const v1 = JSON.parse(old)
+          // simple migration: map coins -> credits, producers -> harvester
+          const resources = (gameData.resources || []).map((r: any) => ({ ...r }))
+          const producers = (gameData.producers || []).map((p: any) => ({ ...p }))
+          const credits = resources.find((x: any) => x.id === 'credits')
+          if (v1.coins && credits) credits.amount = v1.coins
+          const harvester = producers.find((x: any) => x.id === 'harvester')
+          if (v1.producers && harvester) harvester.count = v1.producers
+          return { resources, producers, producerLevel: 1, upgradesPurchased: [], lastSaved: Date.now() } as GameState
+        } catch {}
+      }
     } catch (e) {
       // ignore
     }
@@ -108,6 +124,29 @@ function useIncrementalGame(tickInterval = 1000) {
   // helpers
   function getResource(id: string) {
     return state.resources.find((r) => r.id === id)!
+  }
+
+  function isUpgradePurchased(id: string) {
+    return (state.upgradesPurchased || []).includes(id)
+  }
+
+  function purchaseUpgrade(upgId: string) {
+    const upgrades = (gameData as any).upgrades || []
+    const upg = upgrades.find((u: any) => u.id === upgId)
+    if (!upg) return
+    setState((s) => {
+      const credits = s.resources.find((r) => r.id === 'credits')
+      if (!credits || credits.amount < upg.cost) return s
+      const resources = s.resources.map((r) => (r.id === 'credits' ? { ...r, amount: r.amount - upg.cost } : r))
+      // apply effect simply by mutating producer power
+      const producers = s.producers.map((p) => ({ ...p }))
+      if (upg.effect && upg.effect.type === 'multiplier') {
+        const target = producers.find((pr) => pr.id === upg.effect.target)
+        if (target) target.power = target.power * upg.effect.value
+      }
+      const purchased = [...(s.upgradesPurchased || []), upgId]
+      return { ...s, resources, producers, upgradesPurchased: purchased }
+    })
   }
 
   function addResource(id: string, amount: number) {
