@@ -91,3 +91,55 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Game layout styles */
+.game-root {
+  width: 100%;
+  max-width: 1100px;
+  margin: 2rem auto;
+  display: grid;
+  grid-template-columns: 240px 1fr 320px;
+  gap: 1rem;
+  align-items: start;
+}
+
+.panel {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+.resource-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.resource-pill {
+  background: rgba(255,255,255,0.03);
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.center-card {
+  text-align: center;
+  padding: 2rem;
+}
+
+.producer-card {
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.02);
+  margin-bottom: 8px;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.muted { color: rgba(255,255,255,0.6); }
+
