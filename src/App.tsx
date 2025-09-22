@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './index.css'
+import ResourceList from './components/ResourceList'
 import gameData from './data/game-data.json'
 
 /*
@@ -207,11 +208,7 @@ export default function App() {
         <h2>Command</h2>
         <p className="muted">Starship Idle — experimental build</p>
         <div style={{ marginTop: 12 }}>
-          <div className="resource-bar">
-            {state.resources.map((r) => (
-              <div key={r.id} className="resource-pill">{r.name}: {Math.floor(r.amount)}</div>
-            ))}
-          </div>
+          <ResourceList resources={state.resources} />
         </div>
         <div style={{ marginTop: 12 }}>
           <div className="muted">Producer level: x{state.producerLevel}</div>

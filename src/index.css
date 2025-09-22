@@ -143,3 +143,26 @@ button:focus-visible {
 
 .muted { color: rgba(255,255,255,0.6); }
 
+/* Resource list styles */
+.resource-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resource-item {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.03);
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.resource-name {
+  font-weight: 600;
+}
+
+.resource-amount {
+  font-weight: 600;
+}
+
