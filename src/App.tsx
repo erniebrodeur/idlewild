@@ -42,7 +42,7 @@ function defaultState(): GameState {
   const resources = (gameData.resources || []).map((r: any) => ({ ...r }))
   const producers = (gameData.producers || []).map((p: any) => ({ ...p }))
   const producerLevel = gameData.producerLevel || 1
-  return { resources, producers, producerLevel, lastSaved: Date.now() }
+  return { resources, producers, producerLevel, upgradesPurchased: [], lastSaved: Date.now() }
 }
 
 function useIncrementalGame(tickInterval = 1000) {
@@ -50,21 +50,7 @@ function useIncrementalGame(tickInterval = 1000) {
     try {
       const raw = localStorage.getItem(SAVE_KEY)
       if (raw) return JSON.parse(raw) as GameState
-      // migrate from old v1 save if present
-      const old = localStorage.getItem('idlewild:v1')
-      if (old) {
-        try {
-          const v1 = JSON.parse(old)
-          // simple migration: map coins -> credits, producers -> harvester
-          const resources = (gameData.resources || []).map((r: any) => ({ ...r }))
-          const producers = (gameData.producers || []).map((p: any) => ({ ...p }))
-          const credits = resources.find((x: any) => x.id === 'credits')
-          if (v1.coins && credits) credits.amount = v1.coins
-          const harvester = producers.find((x: any) => x.id === 'harvester')
-          if (v1.producers && harvester) harvester.count = v1.producers
-          return { resources, producers, producerLevel: 1, upgradesPurchased: [], lastSaved: Date.now() } as GameState
-        } catch {}
-      }
+      
     } catch (e) {
       // ignore
     }
@@ -162,10 +148,10 @@ function useIncrementalGame(tickInterval = 1000) {
       const p = producers.find((x) => x.id === pid)
       if (!p) return s
       const cost = Math.ceil(p.baseCost * Math.pow(p.growth, p.count))
-      const res = s.resources.find((r) => r.id === 'coins')
-      if (!res || res.amount < cost) return s
-      // deduct
-      const resources = s.resources.map((r) => (r.id === 'coins' ? { ...r, amount: r.amount - cost } : r))
+  const res = s.resources.find((r) => r.id === 'credits')
+  if (!res || res.amount < cost) return s
+  // deduct
+  const resources = s.resources.map((r) => (r.id === 'credits' ? { ...r, amount: r.amount - cost } : r))
       p.count += 1
       return { ...s, producers, resources }
     })
@@ -174,9 +160,9 @@ function useIncrementalGame(tickInterval = 1000) {
   function upgradeProducers() {
     setState((s) => {
       const cost = 100 * s.producerLevel
-      const res = s.resources.find((r) => r.id === 'coins')
-      if (!res || res.amount < cost) return s
-      const resources = s.resources.map((r) => (r.id === 'coins' ? { ...r, amount: r.amount - cost } : r))
+  const res = s.resources.find((r) => r.id === 'credits')
+  if (!res || res.amount < cost) return s
+  const resources = s.resources.map((r) => (r.id === 'credits' ? { ...r, amount: r.amount - cost } : r))
       return { ...s, producerLevel: s.producerLevel + 1, resources }
     })
   }
@@ -221,10 +207,10 @@ export default function App() {
         </div>
 
         <div className="actions-grid">
-          <button onClick={() => clickGather('credits', 5)}>Send Drone (+5)</button>
-          <button onClick={() => clickGather('energy', 3)}>Recharge (+3 Energy)</button>
-          <button onClick={() => clickGather('credits', 20)}>Salvage (+20)</button>
-          <button onClick={() => clickGather('energy', 10)}>Overclock (+10 Energy)</button>
+          <button onClick={() => clickGather('credits', 5)}>Send Drone (+5 Credits)</button>
+          <button onClick={() => clickGather('nanites', 3)}>Synthesize (+3 Nanites)</button>
+          <button onClick={() => clickGather('credits', 20)}>Salvage (+20 Credits)</button>
+          <button onClick={() => clickGather('nanites', 10)}>Overclock (+10 Nanites)</button>
         </div>
 
         <div style={{ marginTop: 14 }}>
