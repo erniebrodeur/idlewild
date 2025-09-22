@@ -49,7 +49,14 @@ function useIncrementalGame(tickInterval = 1000) {
   const [state, setState] = useState<GameState>(() => {
     try {
       const raw = localStorage.getItem(SAVE_KEY)
-      if (raw) return JSON.parse(raw) as GameState
+      if (raw) {
+        const savedState = JSON.parse(raw) as GameState
+        // Ensure upgradesPurchased is always an array
+        if (!Array.isArray(savedState.upgradesPurchased)) {
+          savedState.upgradesPurchased = []
+        }
+        return savedState
+      }
       
     } catch (e) {
       // ignore
@@ -70,7 +77,7 @@ function useIncrementalGame(tickInterval = 1000) {
           // Calculate effective power with upgrades
           let effectivePower = p.power
           const upgrades = (gameData as any).upgrades || []
-          for (const upgId of s.upgradesPurchased) {
+          for (const upgId of (s.upgradesPurchased || [])) {
             const upg = upgrades.find((u: any) => u.id === upgId)
             if (upg && upg.effect?.type === 'multiplier' && upg.effect.target === p.id) {
               effectivePower *= upg.effect.value
@@ -109,7 +116,7 @@ function useIncrementalGame(tickInterval = 1000) {
           // Calculate effective power with upgrades for offline progress too
           let effectivePower = p.power
           const upgrades = (gameData as any).upgrades || []
-          for (const upgId of s.upgradesPurchased) {
+          for (const upgId of (s.upgradesPurchased || [])) {
             const upg = upgrades.find((u: any) => u.id === upgId)
             if (upg && upg.effect?.type === 'multiplier' && upg.effect.target === p.id) {
               effectivePower *= upg.effect.value
@@ -131,7 +138,7 @@ function useIncrementalGame(tickInterval = 1000) {
   }
 
   function isUpgradePurchased(id: string) {
-    return state.upgradesPurchased.includes(id)
+    return (state.upgradesPurchased || []).includes(id)
   }
 
   function purchaseUpgrade(upgId: string) {
@@ -141,9 +148,9 @@ function useIncrementalGame(tickInterval = 1000) {
     setState((s) => {
       const credits = s.resources.find((r) => r.id === 'credits')
       if (!credits || credits.amount < upg.cost) return s
-      if (s.upgradesPurchased.includes(upgId)) return s // already purchased
+      if ((s.upgradesPurchased || []).includes(upgId)) return s // already purchased
       const resources = s.resources.map((r) => (r.id === 'credits' ? { ...r, amount: r.amount - upg.cost } : r))
-      const purchased = [...s.upgradesPurchased, upgId]
+      const purchased = [...(s.upgradesPurchased || []), upgId]
       return { ...s, resources, upgradesPurchased: purchased }
     })
   }
@@ -238,7 +245,7 @@ export default function App() {
           // Calculate effective power with upgrades
           let effectivePower = p.power
           const upgrades = (gameData as any).upgrades || []
-          for (const upgId of state.upgradesPurchased) {
+          for (const upgId of (state.upgradesPurchased || [])) {
             const upg = upgrades.find((u: any) => u.id === upgId)
             if (upg && upg.effect?.type === 'multiplier' && upg.effect.target === p.id) {
               effectivePower *= upg.effect.value

@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:watch": "chokidar 'src/**/*' -c \"npm run build\"",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
+    "livereload": "concurrently \"npm run build:watch\" \"live-server --root=dist --port=5173 --watch=dist\"",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview"
@@ -27,6 +29,9 @@
     "gh-pages": "^5.0.0",
     "globals": "^16.4.0",
     "typescript": "^5.4.2",
-    "vite": "^7.1.7"
+    "vite": "^7.1.7",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^8.2.0",
+    "live-server": "^1.2.2"
   }
 }
