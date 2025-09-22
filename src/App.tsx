@@ -31,7 +31,7 @@ type GameState = {
   resources: Resource[]
   producers: Producer[]
   producerLevel: number
-  upgradesPurchased?: string[]
+  upgradesPurchased: string[]
   lastSaved: number
 }
 
@@ -67,7 +67,16 @@ function useIncrementalGame(tickInterval = 1000) {
         const resources = s.resources.map((r) => ({ ...r }))
         for (const p of s.producers) {
           if (p.count <= 0) continue
-          const produced = p.count * p.power * s.producerLevel
+          // Calculate effective power with upgrades
+          let effectivePower = p.power
+          const upgrades = (gameData as any).upgrades || []
+          for (const upgId of s.upgradesPurchased) {
+            const upg = upgrades.find((u: any) => u.id === upgId)
+            if (upg && upg.effect?.type === 'multiplier' && upg.effect.target === p.id) {
+              effectivePower *= upg.effect.value
+            }
+          }
+          const produced = p.count * effectivePower * s.producerLevel
           const target = resources.find((res) => res.id === p.resource)
           if (target) target.amount += produced
         }
@@ -97,7 +106,16 @@ function useIncrementalGame(tickInterval = 1000) {
         const resources = s.resources.map((r) => ({ ...r }))
         for (const p of s.producers) {
           if (p.count <= 0) continue
-          const produced = p.count * p.power * s.producerLevel * dt
+          // Calculate effective power with upgrades for offline progress too
+          let effectivePower = p.power
+          const upgrades = (gameData as any).upgrades || []
+          for (const upgId of s.upgradesPurchased) {
+            const upg = upgrades.find((u: any) => u.id === upgId)
+            if (upg && upg.effect?.type === 'multiplier' && upg.effect.target === p.id) {
+              effectivePower *= upg.effect.value
+            }
+          }
+          const produced = p.count * effectivePower * s.producerLevel * dt
           const target = resources.find((res) => res.id === p.resource)
           if (target) target.amount += produced
         }
@@ -113,7 +131,7 @@ function useIncrementalGame(tickInterval = 1000) {
   }
 
   function isUpgradePurchased(id: string) {
-    return (state.upgradesPurchased || []).includes(id)
+    return state.upgradesPurchased.includes(id)
   }
 
   function purchaseUpgrade(upgId: string) {
@@ -123,15 +141,10 @@ function useIncrementalGame(tickInterval = 1000) {
     setState((s) => {
       const credits = s.resources.find((r) => r.id === 'credits')
       if (!credits || credits.amount < upg.cost) return s
+      if (s.upgradesPurchased.includes(upgId)) return s // already purchased
       const resources = s.resources.map((r) => (r.id === 'credits' ? { ...r, amount: r.amount - upg.cost } : r))
-      // apply effect simply by mutating producer power
-      const producers = s.producers.map((p) => ({ ...p }))
-      if (upg.effect && upg.effect.type === 'multiplier') {
-        const target = producers.find((pr) => pr.id === upg.effect.target)
-        if (target) target.power = target.power * upg.effect.value
-      }
-      const purchased = [...(s.upgradesPurchased || []), upgId]
-      return { ...s, resources, producers, upgradesPurchased: purchased }
+      const purchased = [...s.upgradesPurchased, upgId]
+      return { ...s, resources, upgradesPurchased: purchased }
     })
   }
 
@@ -148,10 +161,10 @@ function useIncrementalGame(tickInterval = 1000) {
       const p = producers.find((x) => x.id === pid)
       if (!p) return s
       const cost = Math.ceil(p.baseCost * Math.pow(p.growth, p.count))
-  const res = s.resources.find((r) => r.id === 'credits')
-  if (!res || res.amount < cost) return s
-  // deduct
-  const resources = s.resources.map((r) => (r.id === 'credits' ? { ...r, amount: r.amount - cost } : r))
+      const res = s.resources.find((r) => r.id === 'credits')
+      if (!res || res.amount < cost) return s
+      // deduct
+      const resources = s.resources.map((r) => (r.id === 'credits' ? { ...r, amount: r.amount - cost } : r))
       p.count += 1
       return { ...s, producers, resources }
     })
@@ -160,9 +173,9 @@ function useIncrementalGame(tickInterval = 1000) {
   function upgradeProducers() {
     setState((s) => {
       const cost = 100 * s.producerLevel
-  const res = s.resources.find((r) => r.id === 'credits')
-  if (!res || res.amount < cost) return s
-  const resources = s.resources.map((r) => (r.id === 'credits' ? { ...r, amount: r.amount - cost } : r))
+      const res = s.resources.find((r) => r.id === 'credits')
+      if (!res || res.amount < cost) return s
+      const resources = s.resources.map((r) => (r.id === 'credits' ? { ...r, amount: r.amount - cost } : r))
       return { ...s, producerLevel: s.producerLevel + 1, resources }
     })
   }
@@ -222,10 +235,19 @@ export default function App() {
         <h2>Outposts</h2>
         {state.producers.map((p) => {
           const nextCost = Math.ceil(p.baseCost * Math.pow(p.growth, p.count))
+          // Calculate effective power with upgrades
+          let effectivePower = p.power
+          const upgrades = (gameData as any).upgrades || []
+          for (const upgId of state.upgradesPurchased) {
+            const upg = upgrades.find((u: any) => u.id === upgId)
+            if (upg && upg.effect?.type === 'multiplier' && upg.effect.target === p.id) {
+              effectivePower *= upg.effect.value
+            }
+          }
           return (
             <div key={p.id} className="producer-card">
               <div style={{ fontWeight: 700 }}>{p.name}</div>
-              <div className="muted">Produces: {p.power * state.producerLevel} {p.resource} / tick each</div>
+              <div className="muted">Produces: {effectivePower * state.producerLevel} {p.resource} / tick each</div>
               <div>Owned: {p.count}</div>
               <div style={{ marginTop: 8 }}>
                 <button onClick={() => buyProducer(p.id)} disabled={(state.resources.find(r=>r.id==='credits')?.amount||0) < nextCost}>
