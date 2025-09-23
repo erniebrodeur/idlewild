@@ -1,28 +1,5 @@
 import React from 'react'
-
-type Resource = {
-  id: string
-  name: string
-  amount: number
-  discovered?: boolean
-  category?: string
-  description?: string
-}
-
-type SurvivalNeed = {
-  id: string
-  name: string
-  current: number
-  max: number
-  decayRate: number
-  criticalThreshold: number
-}
-
-type Exploration = {
-  active: boolean
-  timeRemaining: number
-  totalTime: number
-}
+import { Resource, SurvivalNeed, Exploration } from '../types/GameTypes'
 
 interface ExplorationPanelProps {
   exploration: Exploration
@@ -55,7 +32,7 @@ export default function ExplorationPanel({
     <div className="panel">
       <h2 style={{ marginBottom: '1rem' }}>🔍 Exploration Operations</h2>
       <p style={{ color: '#aaa', marginBottom: '1.5rem', fontSize: '1rem' }}>
-        Venture into the wilderness to find materials. Costs food, water, and warmth!
+        Venture into the wilderness to discover various resources. Costs food, water, and warmth!
       </p>
       
       {exploration.active ? (
@@ -82,11 +59,41 @@ export default function ExplorationPanel({
             </div>
           </div>
           <p style={{ color: '#aaa', textAlign: 'center', fontStyle: 'italic' }}>
-            You'll return with materials when exploration completes.
+            You'll return with discovered resources when exploration completes.
           </p>
         </div>
       ) : (
         <div>
+          {/* Show recent discoveries */}
+          {exploration.recentDiscoveries && exploration.recentDiscoveries.length > 0 && (
+            <div style={{ 
+              backgroundColor: '#2a4a2a', 
+              border: '1px solid #4a8a4a',
+              padding: '1rem', 
+              borderRadius: 8, 
+              marginBottom: '1.5rem' 
+            }}>
+              <h3 style={{ color: '#66ff66', marginBottom: '0.5rem', fontSize: '1rem' }}>🎉 Exploration Complete!</h3>
+              <p style={{ color: '#aaa', marginBottom: '0.5rem', fontSize: '0.9rem' }}>You discovered:</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {exploration.recentDiscoveries?.map((discovery: { resourceId: string, amount: number }, index: number) => {
+                  const resource = resources.find(r => r.id === discovery.resourceId)
+                  return (
+                    <span key={index} style={{ 
+                      backgroundColor: '#3a5a3a',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: 4,
+                      fontSize: '0.85rem',
+                      color: '#88ff88'
+                    }}>
+                      +{discovery.amount} {resource?.name || discovery.resourceId}
+                    </span>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+          
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
             <button 
               style={{ 

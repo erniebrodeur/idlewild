@@ -5,6 +5,7 @@ export type Resource = {
   discovered?: boolean
   category?: string
   description?: string
+  findChance?: number
 }
 
 export type SurvivalNeed = {
@@ -27,6 +28,7 @@ export type Exploration = {
   active: boolean
   timeRemaining: number
   totalTime: number
+  recentDiscoveries?: { resourceId: string, amount: number }[]
 }
 
 export type Colonist = {

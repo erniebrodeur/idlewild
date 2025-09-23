@@ -29,11 +29,11 @@ export function useIncrementalGame(tickInterval = 1000) {
         savedState.upgradesDiscovered = savedState.upgradesDiscovered || []
         savedState.resources = savedState.resources || []
         savedState.producers = savedState.producers || []
-        savedState.survival = savedState.survival || { needs: [], colonists: [], campfire: { lit: false, fuel: 0, maxFuel: 100, warmthPerTick: 2 }, exploration: { active: false, timeRemaining: 0, totalTime: 0 } }
+        savedState.survival = savedState.survival || { needs: [], colonists: [], campfire: { lit: false, fuel: 0, maxFuel: 100, warmthPerTick: 2 }, exploration: { active: false, timeRemaining: 0, totalTime: 0, recentDiscoveries: [] } }
         
         // Ensure campfire and exploration exist
         savedState.survival.campfire = savedState.survival.campfire || { lit: false, fuel: 0, maxFuel: 100, warmthPerTick: 2 }
-        savedState.survival.exploration = savedState.survival.exploration || { active: false, timeRemaining: 0, totalTime: 0 }
+        savedState.survival.exploration = savedState.survival.exploration || { active: false, timeRemaining: 0, totalTime: 0, recentDiscoveries: [] }
         
         // Merge missing resources/producers and survival data
         for (const defRes of defaults.resources) {
@@ -86,13 +86,45 @@ export function useIncrementalGame(tickInterval = 1000) {
           // When exploration completes
           if (survival.exploration.timeRemaining <= 0) {
             survival.exploration.active = false
-            // Award materials based on exploration time
-            const materialsFound = Math.floor(survival.exploration.totalTime / 5) + Math.random() * 3
-            const materialResource = resources.find(r => r.id === 'materials')
-            if (materialResource) {
-              materialResource.amount += materialsFound
-              materialResource.discovered = true
+            
+            // Check all resources for potential discovery based on findChance
+            const explorationDuration = survival.exploration.totalTime
+            const baseLuckFactor = Math.min(explorationDuration / 10, 5) // Longer expeditions give better odds, capped at 5x
+            const discoveries: { resourceId: string, amount: number }[] = []
+            
+            for (const resource of resources) {
+              if (resource.findChance && resource.findChance > 0) {
+                // Calculate actual find chance: base chance * luck factor * random roll
+                const effectiveChance = resource.findChance * (1 + baseLuckFactor * 0.2)
+                if (Math.random() < effectiveChance) {
+                  // Amount found scales with exploration time and resource rarity
+                  const baseAmount = Math.max(1, Math.floor(explorationDuration / 10))
+                  const rarityBonus = resource.findChance > 0.5 ? 2 : 1 // Common resources give more
+                  const amountFound = baseAmount * rarityBonus + Math.floor(Math.random() * 3)
+                  
+                  resource.amount += amountFound
+                  resource.discovered = true
+                  discoveries.push({ resourceId: resource.id, amount: amountFound })
+                }
+              }
             }
+            
+            // Store discoveries for display
+            survival.exploration.recentDiscoveries = discoveries
+            
+            // Clear discoveries after 10 seconds
+            setTimeout(() => {
+              setState((s) => ({
+                ...s,
+                survival: {
+                  ...s.survival,
+                  exploration: {
+                    ...s.survival.exploration,
+                    recentDiscoveries: []
+                  }
+                }
+              }))
+            }, 10000)
           }
         }
         

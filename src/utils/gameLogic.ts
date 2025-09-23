@@ -128,7 +128,7 @@ export function defaultState(): GameState {
     needs: (gameData.survival?.needs || []).map((n: any) => ({ ...n })),
     colonists: (gameData.survival?.colonists || []).map((c: any) => ({ ...c })),
     campfire: gameData.survival?.campfire || { lit: false, fuel: 0, maxFuel: 100, warmthPerTick: 2 },
-    exploration: gameData.survival?.exploration || { active: false, timeRemaining: 0, totalTime: 0 }
+    exploration: gameData.survival?.exploration || { active: false, timeRemaining: 0, totalTime: 0, recentDiscoveries: [] }
   }
   return { 
     resources, 

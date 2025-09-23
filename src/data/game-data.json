@@ -1,17 +1,17 @@
 {
   "resources": [
-    { "id": "food", "name": "Food", "amount": 3, "discovered": true, "category": "basic", "description": "Emergency rations and foraged supplies" },
-    { "id": "fuel", "name": "Fuel", "amount": 0, "discovered": false, "category": "power", "description": "Liquid and solid fuels used to power generators and vehicles" },
-    { "id": "seeds", "name": "Seeds", "amount": 0, "discovered": false, "category": "agriculture", "description": "Heirloom seeds for planting more reliable and diverse food crops" },
-    { "id": "electronics", "name": "Electronics", "amount": 0, "discovered": false, "category": "components", "description": "Circuitry, chips, and salvaged sensors used to build advanced devices" },
-    { "id": "fabric", "name": "Fabric", "amount": 0, "discovered": false, "category": "materials", "description": "Cloth and textiles used for repairs, clothing, and basic crafting" },
-    { "id": "luxuries", "name": "Luxuries", "amount": 0, "discovered": false, "category": "consumable", "description": "Small comforts and non-essential items that boost morale when consumed or traded" },
-    { "id": "water", "name": "Water", "amount": 2, "discovered": true, "category": "basic", "description": "Clean drinking water" },
-    { "id": "materials", "name": "Materials", "amount": 1, "discovered": true, "category": "building", "description": "Salvaged metal, plastic, and components" },
-    { "id": "energy", "name": "Energy", "amount": 5, "discovered": false, "category": "power", "description": "Battery power and fuel cells" },
-    { "id": "medicine", "name": "Medicine", "amount": 0, "discovered": false, "category": "health", "description": "Medical supplies and pharmaceuticals" },
-    { "id": "research", "name": "Research", "amount": 0, "discovered": false, "category": "knowledge", "description": "Scientific knowledge and blueprints" },
-    { "id": "tools", "name": "Tools", "amount": 0, "discovered": false, "category": "equipment", "description": "Specialized equipment and devices" }
+    { "id": "food", "name": "Food", "amount": 3, "discovered": true, "category": "basic", "description": "Emergency rations and foraged supplies", "findChance": 0.7 },
+    { "id": "fuel", "name": "Fuel", "amount": 0, "discovered": false, "category": "power", "description": "Liquid and solid fuels used to power generators and vehicles", "findChance": 0.3 },
+    { "id": "seeds", "name": "Seeds", "amount": 0, "discovered": false, "category": "agriculture", "description": "Heirloom seeds for planting more reliable and diverse food crops", "findChance": 0.2 },
+    { "id": "electronics", "name": "Electronics", "amount": 0, "discovered": false, "category": "components", "description": "Circuitry, chips, and salvaged sensors used to build advanced devices", "findChance": 0.15 },
+    { "id": "fabric", "name": "Fabric", "amount": 0, "discovered": false, "category": "materials", "description": "Cloth and textiles used for repairs, clothing, and basic crafting", "findChance": 0.4 },
+    { "id": "luxuries", "name": "Luxuries", "amount": 0, "discovered": false, "category": "consumable", "description": "Small comforts and non-essential items that boost morale when consumed or traded", "findChance": 0.25 },
+    { "id": "water", "name": "Water", "amount": 2, "discovered": true, "category": "basic", "description": "Clean drinking water", "findChance": 0.6 },
+    { "id": "materials", "name": "Materials", "amount": 1, "discovered": true, "category": "building", "description": "Salvaged metal, plastic, and components", "findChance": 0.5 },
+    { "id": "energy", "name": "Energy", "amount": 5, "discovered": false, "category": "power", "description": "Battery power and fuel cells", "findChance": 0.3 },
+    { "id": "medicine", "name": "Medicine", "amount": 0, "discovered": false, "category": "health", "description": "Medical supplies and pharmaceuticals", "findChance": 0.1 },
+    { "id": "research", "name": "Research", "amount": 0, "discovered": false, "category": "knowledge", "description": "Scientific knowledge and blueprints", "findChance": 0.05 },
+    { "id": "tools", "name": "Tools", "amount": 0, "discovered": false, "category": "equipment", "description": "Specialized equipment and devices", "findChance": 0.2 }
   ],
   "survival": {
     "needs": [
