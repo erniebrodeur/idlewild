@@ -5,6 +5,10 @@ import ResourceList from './components/ResourceList'
 import UpgradeList from './components/UpgradeList'
 import SettingsPanel from './components/SettingsPanel'
 import DebugPanel from './components/DebugPanel'
+import GameHeader from './components/GameHeader'
+import SurvivalStatus from './components/SurvivalStatus'
+import CampfirePanel from './components/CampfirePanel'
+import ExplorationPanel from './components/ExplorationPanel'
 import gameData from './data/game-data.json'
 
 /*
@@ -514,248 +518,88 @@ export default function App() {
   const survivalStatus = criticalNeeds.length > 0 ? 'critical' : 'stable'
   
   return (
-    <div className="game-root" style={{ padding: '1rem 2rem' }}>
-      <div className="panel">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <div>
-            <h2>🚀 Crash Site Delta-7</h2>
-            <p className="muted">Day {state.daysSurvived} • Status: {survivalStatus}</p>
+    <div className="game-root" style={{ 
+      padding: '1rem 2rem', 
+      maxWidth: '1400px', 
+      margin: '0 auto',
+      minHeight: '100vh'
+    }}>
+      {/* Header */}
+      <GameHeader
+        daysSurvived={state.daysSurvived}
+        needs={state.survival.needs}
+        onShowSettings={() => setShowSettings(true)}
+        onShowDebug={() => setShowDebug(true)}
+      />
+
+      {/* Main Content Grid */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: '1fr 1fr',
+        gap: '2rem',
+        marginBottom: '2rem'
+      }}>
+        {/* Left Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* Resources */}
+          <div className="panel">
+            <h2 style={{ marginBottom: '1rem' }}>📦 Resources</h2>
+            <ResourceList resources={state.resources} />
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button 
-              onClick={() => setShowSettings(true)}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#333',
-                color: '#ccc',
-                border: '1px solid #555',
-                borderRadius: 6,
-                cursor: 'pointer',
-                fontSize: '0.9rem'
-              }}
-            >
-              ⚙️ Settings
-            </button>
-            <button 
-              onClick={() => setShowDebug(true)}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#441111',
-                color: '#ff6666',
-                border: '1px solid #cc3333',
-                borderRadius: 6,
-                cursor: 'pointer',
-                fontSize: '0.9rem'
-              }}
-            >
-              🐛 Debug
-            </button>
-          </div>
-        </div>
-        <div style={{ marginTop: 12 }}>
-          <ResourceList resources={state.resources} />
-        </div>
-        
-        {/* Survival Status */}
-        <div style={{ marginTop: 20 }}>
-          <h3>Survival Status</h3>
-          {state.survival.needs.map(need => {
-            const percentage = (need.current / need.max) * 100
-            const status = percentage <= (need.criticalThreshold / need.max) * 100 ? 'critical' : 
-                          percentage <= 50 ? 'warning' : 'good'
-            return (
-              <div key={need.id} style={{ marginBottom: 8 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>{need.name}</span>
-                  <span className={`status-${status}`}>{Math.round(percentage)}%</span>
-                </div>
-                <div style={{ 
-                  width: '100%', 
-                  height: 8, 
-                  backgroundColor: '#333', 
-                  borderRadius: 4,
-                  overflow: 'hidden'
-                }}>
-                  <div style={{ 
-                    width: `${percentage}%`, 
-                    height: '100%', 
-                    backgroundColor: status === 'critical' ? '#ff4444' : 
-                                   status === 'warning' ? '#ffaa44' : '#44ff44',
-                    transition: 'width 0.3s ease'
-                  }} />
-                </div>
-              </div>
-            )
-          })}
-          
-          {/* Resource consumption buttons */}
-          <div style={{ marginTop: 16, display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <button 
-              onClick={() => consumeResource('food', 1)}
-              disabled={!state.resources.find(r => r.id === 'food')?.amount || state.resources.find(r => r.id === 'food')!.amount < 1}
-              style={{ padding: '4px 8px', fontSize: '0.9rem' }}
-            >
-              Eat Food (-1)
-            </button>
-            <button 
-              onClick={() => consumeResource('water', 1)}
-              disabled={!state.resources.find(r => r.id === 'water')?.amount || state.resources.find(r => r.id === 'water')!.amount < 1}
-              style={{ padding: '4px 8px', fontSize: '0.9rem' }}
-            >
-              Drink Water (-1)
-            </button>
-          </div>
+
+          {/* Survival Status */}
+          <SurvivalStatus
+            needs={state.survival.needs}
+            resources={state.resources}
+            consumeResource={consumeResource}
+          />
+
+          {/* Campfire Section */}
+          <CampfirePanel
+            campfire={state.survival.campfire}
+            resources={state.resources}
+            lightCampfire={lightCampfire}
+          />
         </div>
 
-        {/* Campfire Section */}
-        <div style={{ marginTop: 20, padding: 16, backgroundColor: '#1a1a1a', borderRadius: 8, border: '1px solid #333' }}>
-          <h3>🔥 Campfire</h3>
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>Status: {state.survival.campfire.lit ? '🔥 Burning' : '❄️ Cold'}</span>
-              <span>Fuel: {Math.round(state.survival.campfire.fuel)}/{state.survival.campfire.maxFuel}</span>
-            </div>
-            <div style={{ 
-              width: '100%', 
-              height: 6, 
-              backgroundColor: '#333', 
-              borderRadius: 3,
-              overflow: 'hidden',
-              marginTop: 4
-            }}>
-              <div style={{ 
-                width: `${(state.survival.campfire.fuel / state.survival.campfire.maxFuel) * 100}%`, 
-                height: '100%', 
-                backgroundColor: state.survival.campfire.lit ? '#ff6600' : '#666',
-                transition: 'width 0.3s ease'
-              }} />
+        {/* Right Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* Exploration */}
+          <ExplorationPanel
+            exploration={state.survival.exploration}
+            resources={state.resources}
+            needs={state.survival.needs}
+            startExploration={startExploration}
+            clickGather={clickGather}
+          />
+
+          {/* Technology & Equipment */}
+          <div className="panel">
+            <h2 style={{ marginBottom: '1rem' }}>🛠️ Technology & Equipment</h2>
+            <UpgradeList
+              upgradesDiscovered={state.upgradesDiscovered}
+              upgradesPurchased={state.upgradesPurchased}
+              resources={state.resources}
+              purchaseUpgrade={purchaseUpgrade}
+            />
+            <div style={{ marginTop: '1.5rem' }}>
+              <ProducerList
+                producers={state.producers}
+                upgradesPurchased={state.upgradesPurchased}
+                resources={state.resources}
+                buyProducer={buyProducer}
+              />
             </div>
           </div>
-          <button 
-            onClick={lightCampfire}
-            disabled={!state.resources.find(r => r.id === 'materials')?.amount || state.resources.find(r => r.id === 'materials')!.amount < 2}
-            style={{ 
-              width: '100%',
-              padding: '8px 16px',
-              backgroundColor: '#ff6600',
-              color: 'white',
-              border: 'none',
-              borderRadius: 4,
-              cursor: 'pointer'
-            }}
-          >
-            {state.survival.campfire.lit ? 'Add Fuel' : 'Light Campfire'} (2 Materials)
-          </button>
-          <p style={{ fontSize: '0.8rem', color: '#888', marginTop: 8 }}>
-            Provides warmth when lit and you're not exploring
-          </p>
         </div>
-      </div>
-
-      <div className="panel center-card">
-        <h2>🔍 Exploration Operations</h2>
-        <p className="muted">Venture into the wilderness to find materials. Costs food, water, and warmth!</p>
-        
-        {state.survival.exploration.active ? (
-          <div style={{ marginTop: 18 }}>
-            <h3>🚶 Currently Exploring...</h3>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Time Remaining</span>
-                <span>{state.survival.exploration.timeRemaining} seconds</span>
-              </div>
-              <div style={{ 
-                width: '100%', 
-                height: 8, 
-                backgroundColor: '#333', 
-                borderRadius: 4,
-                overflow: 'hidden',
-                marginTop: 4
-              }}>
-                <div style={{ 
-                  width: `${((state.survival.exploration.totalTime - state.survival.exploration.timeRemaining) / state.survival.exploration.totalTime) * 100}%`, 
-                  height: '100%', 
-                  backgroundColor: '#44ff44',
-                  transition: 'width 0.3s ease'
-                }} />
-              </div>
-            </div>
-            <p style={{ color: '#888' }}>You'll return with materials when exploration completes.</p>
-          </div>
-        ) : (
-          <div style={{ marginTop: 18 }}>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <button 
-                style={{ fontSize: '1.2rem', padding: '1rem 1.5rem' }} 
-                onClick={() => startExploration(10)}
-                disabled={
-                  !state.resources.find(r => r.id === 'food')?.amount || state.resources.find(r => r.id === 'food')!.amount < 5 ||
-                  !state.resources.find(r => r.id === 'water')?.amount || state.resources.find(r => r.id === 'water')!.amount < 3 ||
-                  !state.survival.needs.find(n => n.id === 'warmth') || state.survival.needs.find(n => n.id === 'warmth')!.current < 4
-                }
-              >
-                Quick Scout (10s)<br/>
-                <small>-5 food, -3 water, -4 warmth</small>
-              </button>
-              <button 
-                style={{ fontSize: '1.2rem', padding: '1rem 1.5rem' }} 
-                onClick={() => startExploration(30)}
-                disabled={
-                  !state.resources.find(r => r.id === 'food')?.amount || state.resources.find(r => r.id === 'food')!.amount < 15 ||
-                  !state.resources.find(r => r.id === 'water')?.amount || state.resources.find(r => r.id === 'water')!.amount < 9 ||
-                  !state.survival.needs.find(n => n.id === 'warmth') || state.survival.needs.find(n => n.id === 'warmth')!.current < 12
-                }
-              >
-                Long Expedition (30s)<br/>
-                <small>-15 food, -9 water, -12 warmth</small>
-              </button>
-            </div>
-            <div style={{ marginTop: 10 }}>
-              <button 
-                style={{ fontSize: '1rem', padding: '0.8rem 1.2rem' }} 
-                onClick={() => clickGather('food', 0.5)}
-              >
-                Forage for Food (+0.5)
-              </button>
-              <button 
-                style={{ fontSize: '1rem', padding: '0.8rem 1.2rem', marginLeft: '8px' }} 
-                onClick={() => clickGather('water', 0.3)}
-              >
-                Collect Water (+0.3)
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #444' }}>
-          <p style={{ fontSize: '0.9rem', color: '#888' }}>
-            Use the Settings panel (⚙️) to access emergency reset and game data management
-          </p>
-        </div>
-      </div>
-
-      <div className="panel">
-        <h2>🛠️ Technology & Equipment</h2>
-        <UpgradeList
-          upgradesDiscovered={state.upgradesDiscovered}
-          upgradesPurchased={state.upgradesPurchased}
-          resources={state.resources}
-          purchaseUpgrade={purchaseUpgrade}
-        />
-        <ProducerList
-          producers={state.producers}
-          upgradesPurchased={state.upgradesPurchased}
-          resources={state.resources}
-          buyProducer={buyProducer}
-        />
       </div>
 
       {/* Settings Panel */}
       <SettingsPanel
         isVisible={showSettings}
         onClose={() => setShowSettings(false)}
-        onReset={reset}
         gameState={state}
+        onReset={reset}
       />
 
       {/* Debug Panel */}
