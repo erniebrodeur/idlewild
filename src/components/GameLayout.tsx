@@ -52,8 +52,6 @@ export default function GameLayout({
     }}>
       {/* Left Sidebar */}
       <ResourcesSidebar
-        daysSurvived={state.daysSurvived}
-        needs={state.survival.needs}
         resources={state.resources}
         onShowSettings={onShowSettings}
         onShowDebug={onShowDebug}

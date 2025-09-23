@@ -90,12 +90,6 @@ export default function DebugPanel({ isVisible, onClose, gameState, onGameStateC
     onGameStateChange(newState)
   }
 
-  const advanceDays = (days: number) => {
-    const newState = { ...gameState }
-    newState.daysSurvived += days
-    onGameStateChange(newState)
-  }
-
   const handleQuickResourceSet = () => {
     const amount = parseFloat(resourceAmountInput)
     if (!isNaN(amount)) {
@@ -417,52 +411,6 @@ export default function DebugPanel({ isVisible, onClose, gameState, onGameStateC
         </div>
 
         {/* Time Management */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h3 style={{ color: '#ff8866', marginBottom: '1rem' }}>⏰ Time Management</h3>
-          
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <button 
-              onClick={() => advanceDays(1)}
-              style={{
-                padding: '0.6rem 1.2rem',
-                backgroundColor: '#6600cc',
-                color: 'white',
-                border: 'none',
-                borderRadius: 4,
-                cursor: 'pointer'
-              }}
-            >
-              +1 Day
-            </button>
-            <button 
-              onClick={() => advanceDays(7)}
-              style={{
-                padding: '0.6rem 1.2rem',
-                backgroundColor: '#6600cc',
-                color: 'white',
-                border: 'none',
-                borderRadius: 4,
-                cursor: 'pointer'
-              }}
-            >
-              +1 Week
-            </button>
-            <button 
-              onClick={() => advanceDays(30)}
-              style={{
-                padding: '0.6rem 1.2rem',
-                backgroundColor: '#6600cc',
-                color: 'white',
-                border: 'none',
-                borderRadius: 4,
-                cursor: 'pointer'
-              }}
-            >
-              +1 Month
-            </button>
-          </div>
-        </div>
-
         {/* Current State Info */}
         <div style={{ 
           backgroundColor: '#2a2a2a', 
@@ -480,9 +428,6 @@ export default function DebugPanel({ isVisible, onClose, gameState, onGameStateC
             </p>
             <p style={{ margin: '0.2rem 0' }}>
               Upgrades: {gameState.upgradesPurchased?.length || 0} purchased, {gameState.upgradesDiscovered?.length || 0} discovered
-            </p>
-            <p style={{ margin: '0.2rem 0' }}>
-              Days: {gameState.daysSurvived || 0}
             </p>
           </div>
         </div>

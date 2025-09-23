@@ -63,5 +63,4 @@ export type GameState = {
     exploration: Exploration
   }
   lastSaved: number
-  daysSurvived: number
 }

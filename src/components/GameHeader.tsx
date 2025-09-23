@@ -1,25 +1,11 @@
 import React from 'react'
 
-type SurvivalNeed = {
-  id: string
-  name: string
-  current: number
-  max: number
-  decayRate: number
-  criticalThreshold: number
-}
-
 interface GameHeaderProps {
-  daysSurvived: number
-  needs: SurvivalNeed[]
   onShowSettings: () => void
   onShowDebug: () => void
 }
 
-export default function GameHeader({ daysSurvived, needs, onShowSettings, onShowDebug }: GameHeaderProps) {
-  // Get critical survival status
-  const criticalNeeds = needs.filter(n => n.current <= n.criticalThreshold)
-  const survivalStatus = criticalNeeds.length > 0 ? 'critical' : 'stable'
+export default function GameHeader({ onShowSettings, onShowDebug }: GameHeaderProps) {
   
   const isLocalhost = window.location.hostname === 'localhost' || 
                      window.location.hostname === '127.0.0.1' || 
@@ -41,16 +27,6 @@ export default function GameHeader({ daysSurvived, needs, onShowSettings, onShow
         }}>
           🚀 Crash Site Delta-7
         </h1>
-        <p style={{ 
-          margin: 0, 
-          color: '#aaa',
-          fontSize: '1rem'
-        }}>
-          Day {daysSurvived} • Status: <span style={{
-            color: survivalStatus === 'critical' ? '#ff6666' : '#66ff66',
-            fontWeight: 'bold'
-          }}>{survivalStatus}</span>
-        </p>
       </div>
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '1rem' }}>
         <button 

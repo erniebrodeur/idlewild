@@ -1,4 +1,4 @@
-import { GameState, Resource } from '../types/GameTypes'
+import { GameState, Resource, SurvivalNeed } from '../types/GameTypes'
 import gameData from '../data/game-data.json'
 
 // Cached upgrade calculations to avoid repeated lookups
@@ -38,6 +38,88 @@ export function evaluateUpgradeUnlocks(resources: Resource[], currentDiscovered:
   return newly
 }
 
+// Resource update helpers
+export function updateResourceAmount(resources: Resource[], resourceId: string, delta: number, markDiscovered = true): Resource[] {
+  return resources.map(r => 
+    r.id === resourceId 
+      ? { ...r, amount: r.amount + delta, discovered: markDiscovered || r.discovered } 
+      : r
+  )
+}
+
+export function updateMultipleResources(resources: Resource[], updates: Array<{id: string, delta: number}>): Resource[] {
+  return resources.map(r => {
+    const update = updates.find(u => u.id === r.id)
+    return update ? { ...r, amount: r.amount + update.delta, discovered: true } : r
+  })
+}
+
+// Resource availability check
+export function hasEnoughResources(resources: Resource[], costs: Array<{id: string, amount: number}>): boolean {
+  return costs.every(cost => {
+    const resource = resources.find(r => r.id === cost.id)
+    return resource && resource.amount >= cost.amount
+  })
+}
+
+// Single resource check
+export function hasEnoughResource(resources: Resource[], resourceId: string, amount: number): boolean {
+  const resource = resources.find(r => r.id === resourceId)
+  return resource ? resource.amount >= amount : false
+}
+
+// Survival need updates
+export function updateSurvivalNeed(needs: SurvivalNeed[], needId: string, delta: number): SurvivalNeed[] {
+  return needs.map(need => {
+    if (need.id === needId) {
+      const newCurrent = Math.max(0, Math.min(need.max, need.current + delta))
+      return { ...need, current: newCurrent }
+    }
+    return need
+  })
+}
+
+// Apply multiple survival need updates
+export function updateMultipleSurvivalNeeds(needs: SurvivalNeed[], updates: Array<{id: string, delta: number}>): SurvivalNeed[] {
+  return needs.map(need => {
+    const update = updates.find(u => u.id === need.id)
+    if (update) {
+      const newCurrent = Math.max(0, Math.min(need.max, need.current + update.delta))
+      return { ...need, current: newCurrent }
+    }
+    return need
+  })
+}
+
+// State with upgrade discoveries
+export function applyStateWithUpgradeDiscoveries(
+  state: GameState, 
+  updates: Partial<GameState>
+): GameState {
+  const newState = { ...state, ...updates }
+  const newlyDiscovered = evaluateUpgradeUnlocks(
+    newState.resources, 
+    state.upgradesDiscovered, 
+    newState.upgradesPurchased || state.upgradesPurchased
+  )
+  
+  return newlyDiscovered.length > 0 
+    ? { ...newState, upgradesDiscovered: [...state.upgradesDiscovered, ...newlyDiscovered] }
+    : newState
+}
+
+// Helper function to update state with newly discovered upgrades
+export function updateStateWithUpgradeDiscoveries(
+  baseState: any, 
+  resources: Resource[], 
+  upgradesPurchased: string[]
+) {
+  const newlyDiscovered = evaluateUpgradeUnlocks(resources, baseState.upgradesDiscovered, upgradesPurchased)
+  return newlyDiscovered.length > 0 
+    ? { ...baseState, upgradesDiscovered: [...baseState.upgradesDiscovered, ...newlyDiscovered] }
+    : baseState
+}
+
 export function defaultState(): GameState {
   // Initialize from JSON game data file and attach lastSaved
   const resources = (gameData.resources || []).map((r: any) => ({ ...r }))
@@ -54,7 +136,6 @@ export function defaultState(): GameState {
     upgradesPurchased: [], 
     upgradesDiscovered: [], 
     survival,
-    daysSurvived: 0,
     lastSaved: Date.now() 
   }
 }

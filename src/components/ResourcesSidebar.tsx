@@ -1,18 +1,14 @@
 import React from 'react'
 import GameHeader from './GameHeader'
-import { Resource, SurvivalNeed } from '../types/GameTypes'
+import { Resource } from '../types/GameTypes'
 
 interface ResourcesSidebarProps {
-  daysSurvived: number
-  needs: SurvivalNeed[]
   resources: Resource[]
   onShowSettings: () => void
   onShowDebug: () => void
 }
 
 export default function ResourcesSidebar({ 
-  daysSurvived, 
-  needs, 
   resources, 
   onShowSettings, 
   onShowDebug 
@@ -23,8 +19,6 @@ export default function ResourcesSidebar({
       flexShrink: 0
     }}>
       <GameHeader
-        daysSurvived={daysSurvived}
-        needs={needs}
         onShowSettings={onShowSettings}
         onShowDebug={onShowDebug}
       />

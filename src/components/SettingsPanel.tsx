@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
+import { GameState } from '../types/GameTypes'
 import '../index.css'
 
 type SettingsPanelProps = {
   isVisible: boolean
   onClose: () => void
   onReset: () => void
-  gameState: any
+  gameState: GameState
 }
 
 export default function SettingsPanel({ isVisible, onClose, onReset, gameState }: SettingsPanelProps) {
@@ -26,7 +27,7 @@ export default function SettingsPanel({ isVisible, onClose, onReset, gameState }
         navigator.clipboard.writeText(exportJson)
       }
     } catch (error) {
-      console.error('Export failed:', error)
+      setImportError(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
@@ -290,9 +291,6 @@ export default function SettingsPanel({ isVisible, onClose, onReset, gameState }
             borderRadius: 6,
             border: '1px solid #555'
           }}>
-            <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem' }}>
-              <strong>Days Survived:</strong> {gameState.daysSurvived}
-            </p>
             <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem' }}>
               <strong>Resources Discovered:</strong> {gameState.resources?.filter((r: any) => r.discovered).length || 0}
             </p>
