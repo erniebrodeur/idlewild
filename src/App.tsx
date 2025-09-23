@@ -31,42 +31,63 @@ export default function App() {
   
   return (
     <div className="game-root" style={{ 
-      padding: '1rem 2rem', 
-      maxWidth: '1400px', 
-      margin: '0 auto',
-      minHeight: '100vh'
+      padding: '1rem', 
+      minHeight: '100vh',
+      display: 'flex',
+      gap: '2rem'
     }}>
-      {/* Header */}
-      <GameHeader
-        daysSurvived={state.daysSurvived}
-        needs={state.survival.needs}
-        onShowSettings={() => setShowSettings(true)}
-        onShowDebug={() => setShowDebug(true)}
-      />
-
-      {/* Main Content Grid */}
+      {/* Left Sidebar - Header and Resources */}
       <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '1fr 1fr',
-        gap: '2rem',
-        marginBottom: '2rem'
+        width: '300px',
+        flexShrink: 0
+      }}>
+        <GameHeader
+          daysSurvived={state.daysSurvived}
+          needs={state.survival.needs}
+          onShowSettings={() => setShowSettings(true)}
+          onShowDebug={() => setShowDebug(true)}
+        />
+        
+        {/* Resources */}
+        <div className="panel" style={{ marginTop: '1rem' }}>
+          <h2 style={{ marginBottom: '1rem' }}>📦 Resources</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {state.resources.filter(r => r.discovered).map(resource => (
+              <div key={resource.id} style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between',
+                fontSize: '1rem',
+                color: '#ccc'
+              }}>
+                <span>{resource.name}</span>
+                <span style={{ color: '#87ceeb', fontWeight: 'bold' }}>
+                  {Math.floor(resource.amount * 10) / 10}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content - Flexible Width */}
+      <div style={{ 
+        flex: 1,
+        display: 'flex',
+        gap: '2rem'
       }}>
         {/* Left Column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {/* Resources */}
-          <div className="panel">
-            <h2 style={{ marginBottom: '1rem' }}>📦 Resources</h2>
-            <ResourceList resources={state.resources} />
-          </div>
-
-          {/* Survival Status */}
+        <div style={{ 
+          flex: 1,
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '1.5rem' 
+        }}>
           <SurvivalStatus
             needs={state.survival.needs}
             resources={state.resources}
             consumeResource={consumeResource}
           />
 
-          {/* Campfire Section */}
           <CampfirePanel
             campfire={state.survival.campfire}
             resources={state.resources}
@@ -75,8 +96,12 @@ export default function App() {
         </div>
 
         {/* Right Column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {/* Exploration */}
+        <div style={{ 
+          flex: 1,
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '1.5rem' 
+        }}>
           <ExplorationPanel
             exploration={state.survival.exploration}
             resources={state.resources}
@@ -85,7 +110,6 @@ export default function App() {
             clickGather={clickGather}
           />
 
-          {/* Technology & Equipment */}
           <div className="panel">
             <h2 style={{ marginBottom: '1rem' }}>🛠️ Technology & Equipment</h2>
             <UpgradeList
