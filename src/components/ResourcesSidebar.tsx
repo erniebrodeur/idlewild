@@ -1,28 +1,18 @@
 import React from 'react'
-import GameHeader from './GameHeader'
 import { Resource } from '../types/GameTypes'
 
 interface ResourcesSidebarProps {
   resources: Resource[]
-  onShowSettings: () => void
-  onShowDebug: () => void
 }
 
 export default function ResourcesSidebar({ 
-  resources, 
-  onShowSettings, 
-  onShowDebug 
+  resources 
 }: ResourcesSidebarProps) {
   return (
     <div style={{ 
       width: '300px',
       flexShrink: 0
     }}>
-      <GameHeader
-        onShowSettings={onShowSettings}
-        onShowDebug={onShowDebug}
-      />
-      
       {/* Resources */}
       <div className="panel" style={{ marginTop: '1rem' }}>
         <h2 style={{ marginBottom: '1rem' }}>📦 Resources</h2>

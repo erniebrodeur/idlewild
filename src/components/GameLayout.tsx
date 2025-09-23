@@ -1,4 +1,5 @@
 import React from 'react'
+import GameHeader from './GameHeader'
 import ResourcesSidebar from './ResourcesSidebar'
 import SurvivalStatus from './SurvivalStatus'
 import CampfirePanel from './CampfirePanel'
@@ -48,64 +49,76 @@ export default function GameLayout({
       padding: '1rem', 
       minHeight: '100vh',
       display: 'flex',
+      flexDirection: 'column',
       gap: '2rem'
     }}>
-      {/* Left Sidebar */}
-      <ResourcesSidebar
-        resources={state.resources}
+      {/* Header */}
+      <GameHeader
         onShowSettings={onShowSettings}
         onShowDebug={onShowDebug}
       />
-
-      {/* Main Content */}
+      
+      {/* Main Layout */}
       <div style={{ 
-        flex: 1,
         display: 'flex',
-        gap: '2rem'
+        gap: '2rem',
+        flex: 1
       }}>
-        {/* Left Column */}
+        {/* Left Sidebar */}
+        <ResourcesSidebar
+          resources={state.resources}
+        />
+
+        {/* Main Content */}
         <div style={{ 
           flex: 1,
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: '1.5rem' 
+          display: 'flex',
+          gap: '2rem'
         }}>
-          <SurvivalStatus
-            needs={state.survival.needs}
-            resources={state.resources}
-            consumeResource={consumeResource}
-          />
+          {/* Left Column */}
+          <div style={{ 
+            flex: 1,
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '1.5rem' 
+          }}>
+            <SurvivalStatus
+              needs={state.survival.needs}
+              resources={state.resources}
+              consumeResource={consumeResource}
+            />
 
-          <CampfirePanel
-            campfire={state.survival.campfire}
-            resources={state.resources}
-            lightCampfire={lightCampfire}
-          />
-        </div>
+            <CampfirePanel
+              campfire={state.survival.campfire}
+              resources={state.resources}
+              lightCampfire={lightCampfire}
+            />
+          </div>
 
-        {/* Right Column */}
-        <div style={{ 
-          flex: 1,
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: '1.5rem' 
-        }}>
-          <ExplorationPanel
-            exploration={state.survival.exploration}
-            resources={state.resources}
-            needs={state.survival.needs}
-            startExploration={startExploration}
-            clickGather={clickGather}
-          />
+          {/* Right Column */}
+          <div style={{ 
+            flex: 1,
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '1.5rem' 
+          }}>
+            <ExplorationPanel
+              exploration={state.survival.exploration}
+              resources={state.resources}
+              needs={state.survival.needs}
+              startExploration={startExploration}
+              clickGather={clickGather}
+            />
 
-          <TechnologyPanel
-            upgradesDiscovered={state.upgradesDiscovered}
-            upgradesPurchased={state.upgradesPurchased}
-            producers={state.producers}
-            resources={state.resources}
-            purchaseUpgrade={purchaseUpgrade}
-            buyProducer={buyProducer}
-          />
+            <TechnologyPanel
+              upgradesDiscovered={state.upgradesDiscovered}
+              upgradesPurchased={state.upgradesPurchased}
+              producers={state.producers}
+              resources={state.resources}
+              purchaseUpgrade={purchaseUpgrade}
+              buyProducer={buyProducer}
+            />
+          </div>
         </div>
       </div>
 
