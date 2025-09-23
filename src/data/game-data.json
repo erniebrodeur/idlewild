@@ -1,15 +1,16 @@
 {
   "resources": [
-    { "id": "credits", "name": "Credits", "amount": 0 },
-    { "id": "nanites", "name": "Nanites", "amount": 0 }
+  { "id": "credits", "name": "Credits", "amount": 0, "discovered": false },
+  { "id": "nanites", "name": "Nanites", "amount": 0, "discovered": false },
+  { "id": "metal", "name": "Metal", "amount": 0, "discovered": false }
   ],
   "producers": [
-    { "id": "harvester", "name": "Harvester", "resource": "credits", "count": 0, "baseCost": 10, "growth": 1.15, "power": 1 },
-    { "id": "drone", "name": "Repair Drone", "resource": "nanites", "count": 0, "baseCost": 25, "growth": 1.2, "power": 0.5 }
+  { "id": "harvester", "name": "Harvester", "resource": "credits", "count": 0, "baseCost": 10, "growth": 1.15, "power": 1, "discovered": false },
+  { "id": "drone", "name": "Repair Drone", "resource": "nanites", "count": 0, "baseCost": 25, "growth": 1.2, "power": 0.5, "discovered": false }
   ],
-  "producerLevel": 1,
   "upgrades": [
-    { "id": "efficiency_1", "name": "Improved Gearings", "desc": "Harvesters produce +20%", "cost": 50, "effect": { "type": "multiplier", "target": "harvester", "value": 1.2 } },
-    { "id": "research_1", "name": "Basic Research", "desc": "Labs produce +25%", "cost": 120, "effect": { "type": "multiplier", "target": "drone", "value": 1.25 } }
+  { "id": "efficiency_1", "name": "Improved Gearings", "desc": "Harvesters produce +20%", "cost": 50, "effect": { "type": "multiplier", "target": "harvester", "value": 1.2 }, "discovered": false },
+  { "id": "research_1", "name": "Basic Research", "desc": "Labs produce +25%", "cost": 120, "effect": { "type": "multiplier", "target": "drone", "value": 1.25 }, "discovered": false },
+  { "id": "metal_upgrade_1", "name": "Metalworking I", "desc": "Unlock basic metal processing (+1 credits per metal)", "cost": 20, "unlock": { "type": "resource", "id": "metal", "amount": 10 }, "effect": { "type": "multiplier", "target": "harvester", "value": 1.1 }, "discovered": false }
   ]
 }

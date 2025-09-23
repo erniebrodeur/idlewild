@@ -166,3 +166,30 @@ button:focus-visible {
   font-weight: 600;
 }
 
+/* Producer list styles */
+.producer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.producer-item {
+  background: rgba(255,255,255,0.02);
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.producer-name {
+  font-weight: 700;
+}
+
+.producer-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.7);
+}
+
