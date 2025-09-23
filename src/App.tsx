@@ -186,10 +186,11 @@ function useIncrementalGame(tickInterval = 1000) {
     const upg = upgrades.find((u: any) => u.id === upgId)
     if (!upg) return
     setState((s) => {
-      const credits = s.resources.find((r) => r.id === 'credits')
-      if (!credits || credits.amount < upg.cost) return s
+      if (!upg.costResource) return s // must specify which resource pays for this upgrade
+      const payRes = s.resources.find((r) => r.id === upg.costResource)
+      if (!payRes || payRes.amount < upg.cost) return s
       if ((s.upgradesPurchased || []).includes(upgId)) return s // already purchased
-      const resources = s.resources.map((r) => (r.id === 'credits' ? { ...r, amount: r.amount - upg.cost, discovered: true } : r))
+      const resources = s.resources.map((r) => (r.id === upg.costResource ? { ...r, amount: r.amount - upg.cost, discovered: true } : r))
       const purchased = [...(s.upgradesPurchased || []), upgId]
       // when purchasing, also mark any upgrades unlocked by this spend
       const upgradesDiscovered = [...(s.upgradesDiscovered || [])]

@@ -25,7 +25,8 @@ export default function UpgradeList({ upgradesDiscovered, upgradesPurchased, res
     <div className="upgrade-list">
       <h3>Upgrades</h3>
       {visible.map((u: any) => {
-        const affordable = (resources.find(r => r.id === 'credits')?.amount || 0) >= u.cost
+        if (!u.costResource) return null // upgrades must declare costResource explicitly
+        const affordable = (resources.find(r => r.id === u.costResource)?.amount || 0) >= u.cost
         return (
           <div key={u.id} className="upgrade-item">
             <div style={{ fontWeight: 700 }}>{u.name}</div>
