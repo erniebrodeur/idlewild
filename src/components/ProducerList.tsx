@@ -28,7 +28,7 @@ export default function ProducerList({ producers, upgradesPurchased, resources, 
     
     for (const upgId of upgradesPurchased) {
       const upg = upgrades.find((u) => u.id === upgId)
-      if (upg?.effect?.type === 'multiplier' && upg.effect.value) {
+      if (upg?.effect?.type === 'multiplier' && upg.effect.value && upg.effect.target) {
         const current = multipliers.get(upg.effect.target) || 1
         multipliers.set(upg.effect.target, current * upg.effect.value)
       }

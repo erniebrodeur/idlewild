@@ -3,6 +3,8 @@ import './index.css'
 import ProducerList from './components/ProducerList'
 import ResourceList from './components/ResourceList'
 import UpgradeList from './components/UpgradeList'
+import SettingsPanel from './components/SettingsPanel'
+import DebugPanel from './components/DebugPanel'
 import gameData from './data/game-data.json'
 
 /*
@@ -499,11 +501,13 @@ function useIncrementalGame(tickInterval = 1000) {
     localStorage.removeItem(SAVE_KEY)
   }
 
-  return { state, buyProducer, clickGather, reset, purchaseUpgrade, lightCampfire, startExploration, consumeResource }
+  return { state, setState, buyProducer, clickGather, reset, purchaseUpgrade, lightCampfire, startExploration, consumeResource }
 }
 
 export default function App() {
-  const { state, buyProducer, clickGather, reset, purchaseUpgrade, lightCampfire, startExploration, consumeResource } = useIncrementalGame()
+  const { state, setState, buyProducer, clickGather, reset, purchaseUpgrade, lightCampfire, startExploration, consumeResource } = useIncrementalGame()
+  const [showSettings, setShowSettings] = useState(false)
+  const [showDebug, setShowDebug] = useState(false)
   
   // Get critical survival status
   const criticalNeeds = state.survival.needs.filter(n => n.current <= n.criticalThreshold)
@@ -512,8 +516,42 @@ export default function App() {
   return (
     <div className="game-root" style={{ padding: '1rem 2rem' }}>
       <div className="panel">
-        <h2>🚀 Crash Site Delta-7</h2>
-        <p className="muted">Day {state.daysSurvived} • Status: {survivalStatus}</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <div>
+            <h2>🚀 Crash Site Delta-7</h2>
+            <p className="muted">Day {state.daysSurvived} • Status: {survivalStatus}</p>
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button 
+              onClick={() => setShowSettings(true)}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#333',
+                color: '#ccc',
+                border: '1px solid #555',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              ⚙️ Settings
+            </button>
+            <button 
+              onClick={() => setShowDebug(true)}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#441111',
+                color: '#ff6666',
+                border: '1px solid #cc3333',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              🐛 Debug
+            </button>
+          </div>
+        </div>
         <div style={{ marginTop: 12 }}>
           <ResourceList resources={state.resources} />
         </div>
@@ -691,11 +729,8 @@ export default function App() {
 
         <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #444' }}>
           <p style={{ fontSize: '0.9rem', color: '#888' }}>
-            Emergency Protocol: If survival systems fail, use emergency reset
+            Use the Settings panel (⚙️) to access emergency reset and game data management
           </p>
-          <button onClick={reset} style={{ fontSize: '0.9rem', opacity: 0.7 }}>
-            Emergency Reset
-          </button>
         </div>
       </div>
 
@@ -714,6 +749,22 @@ export default function App() {
           buyProducer={buyProducer}
         />
       </div>
+
+      {/* Settings Panel */}
+      <SettingsPanel
+        isVisible={showSettings}
+        onClose={() => setShowSettings(false)}
+        onReset={reset}
+        gameState={state}
+      />
+
+      {/* Debug Panel */}
+      <DebugPanel
+        isVisible={showDebug}
+        onClose={() => setShowDebug(false)}
+        gameState={state}
+        onGameStateChange={setState}
+      />
     </div>
   )
 }
