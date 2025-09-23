@@ -11,9 +11,12 @@ html, body, #root {
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  color-scheme: dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #0d1117;
+  background-image: 
+    radial-gradient(circle at 25% 25%, #1a1a2e 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, #16213e 0%, transparent 50%);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -155,5 +158,87 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+/* Survival-specific styles */
+.status-critical {
+  color: #ff4444;
+  font-weight: bold;
+}
+
+.status-warning {
+  color: #ffaa44;
+  font-weight: bold;
+}
+
+.status-good {
+  color: #44ff44;
+  font-weight: bold;
+}
+
+/* Enhanced panel styling for survival theme */
+.panel {
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  backdrop-filter: blur(8px);
+}
+
+.panel h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #66ccff;
+  text-shadow: 0 0 10px rgba(102, 204, 255, 0.3);
+}
+
+.panel h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #88ddff;
+}
+
+/* Emergency/critical styling */
+.critical-alert {
+  background: linear-gradient(45deg, #ff4444, #cc3333);
+  border: 2px solid #ff6666;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0); }
+}
+
+/* Button improvements */
+button {
+  border-radius: 6px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  color: rgba(255, 255, 255, 0.87);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+button:hover:not(:disabled) {
+  border-color: #66ccff;
+  background-color: #2a2a2a;
+  box-shadow: 0 0 10px rgba(102, 204, 255, 0.3);
+}
+
+button:disabled {
+  background-color: #333;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 

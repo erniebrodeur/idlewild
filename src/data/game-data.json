@@ -1,16 +1,54 @@
 {
   "resources": [
-  { "id": "credits", "name": "Credits", "amount": 0, "discovered": false },
-  { "id": "nanites", "name": "Nanites", "amount": 0, "discovered": false },
-  { "id": "metal", "name": "Metal", "amount": 0, "discovered": false }
+    { "id": "food", "name": "Food", "amount": 3, "discovered": true, "category": "basic", "description": "Emergency rations and foraged supplies" },
+    { "id": "water", "name": "Water", "amount": 2, "discovered": true, "category": "basic", "description": "Clean drinking water" },
+    { "id": "materials", "name": "Materials", "amount": 1, "discovered": true, "category": "building", "description": "Salvaged metal, plastic, and components" },
+    { "id": "energy", "name": "Energy", "amount": 5, "discovered": false, "category": "power", "description": "Battery power and fuel cells" },
+    { "id": "medicine", "name": "Medicine", "amount": 0, "discovered": false, "category": "health", "description": "Medical supplies and pharmaceuticals" },
+    { "id": "research", "name": "Research", "amount": 0, "discovered": false, "category": "knowledge", "description": "Scientific knowledge and blueprints" },
+    { "id": "tools", "name": "Tools", "amount": 0, "discovered": false, "category": "equipment", "description": "Specialized equipment and devices" }
   ],
+  "survival": {
+    "needs": [
+      { "id": "hunger", "name": "Hunger", "current": 80, "max": 100, "decayRate": 0, "criticalThreshold": 20 },
+      { "id": "thirst", "name": "Thirst", "current": 70, "max": 100, "decayRate": 0, "criticalThreshold": 15 },
+      { "id": "warmth", "name": "Warmth", "current": 60, "max": 100, "decayRate": 0, "criticalThreshold": 25 }
+    ],
+    "colonists": [
+      { 
+        "id": "player", 
+        "name": "Survivor", 
+        "health": 85, 
+        "morale": 60, 
+        "skills": { "scavenging": 3, "crafting": 2, "research": 1 },
+        "conditions": []
+      }
+    ],
+    "campfire": {
+      "lit": false,
+      "fuel": 0,
+      "maxFuel": 100,
+      "warmthPerTick": 2
+    },
+    "exploration": {
+      "active": false,
+      "timeRemaining": 0,
+      "totalTime": 0
+    }
+  },
   "producers": [
-  { "id": "harvester", "name": "Harvester", "resource": "credits", "count": 0, "baseCost": 10, "growth": 1.15, "power": 1, "discovered": false },
-  { "id": "drone", "name": "Repair Drone", "resource": "nanites", "count": 0, "baseCost": 25, "growth": 1.2, "power": 0.5, "discovered": false }
+    { "id": "water_collector", "name": "Water Collector", "resource": "water", "count": 0, "baseCost": 3, "costResource": "materials", "growth": 1.5, "power": 0.8, "discovered": false, "description": "Collects rainwater and atmospheric moisture" },
+    { "id": "scavenger_bot", "name": "Scavenger Bot", "resource": "materials", "count": 0, "baseCost": 5, "costResource": "materials", "growth": 2.0, "power": 1.2, "discovered": false, "description": "Autonomous robot that searches wreckage for useful materials" },
+    { "id": "hydroponic_pod", "name": "Hydroponic Pod", "resource": "food", "count": 0, "baseCost": 8, "costResource": "materials", "growth": 1.8, "power": 0.6, "discovered": false, "description": "Grows emergency food crops using minimal water" },
+    { "id": "solar_panel", "name": "Solar Panel", "resource": "energy", "count": 0, "baseCost": 12, "costResource": "materials", "growth": 1.6, "power": 2.0, "discovered": false, "description": "Converts sunlight into usable energy" },
+    { "id": "research_station", "name": "Research Station", "resource": "research", "count": 0, "baseCost": 15, "costResource": "materials", "growth": 2.2, "power": 0.4, "discovered": false, "description": "Analyzes salvaged technology and develops improvements" }
   ],
   "upgrades": [
-  { "id": "efficiency_1", "name": "Improved Gearings", "desc": "Harvesters produce +20%", "cost": 50, "effect": { "type": "multiplier", "target": "harvester", "value": 1.2 }, "discovered": false },
-  { "id": "research_1", "name": "Basic Research", "desc": "Labs produce +25%", "cost": 120, "effect": { "type": "multiplier", "target": "drone", "value": 1.25 }, "discovered": false },
-  { "id": "metal_upgrade_1", "name": "Metalworking I", "desc": "Unlock basic metal processing (+1 credits per metal)", "cost": 20, "costResource": "metal", "unlock": { "type": "resource", "id": "metal", "amount": 10 }, "effect": { "type": "multiplier", "target": "harvester", "value": 1.1 }, "discovered": false }
+    { "id": "campfire_upgrade", "name": "Improved Campfire", "desc": "Campfire burns fuel 25% slower and provides more warmth", "cost": 5, "costResource": "materials", "unlock": { "type": "campfire", "lit": true }, "effect": { "type": "campfire_modifier", "attribute": "efficiency", "value": 1.25 }, "discovered": false },
+    { "id": "water_efficiency", "name": "Water Recycling", "desc": "Water collectors are 50% more efficient", "cost": 10, "costResource": "materials", "unlock": { "type": "resource", "id": "water", "amount": 5 }, "effect": { "type": "multiplier", "target": "water_collector", "value": 1.5 }, "discovered": false },
+    { "id": "improved_scavenging", "name": "Improved Scavenging", "desc": "Scavenger bots find 30% more materials", "cost": 8, "costResource": "materials", "unlock": { "type": "producer", "id": "scavenger_bot", "count": 1 }, "effect": { "type": "multiplier", "target": "scavenger_bot", "value": 1.3 }, "discovered": false },
+    { "id": "exploration_gear", "name": "Exploration Gear", "desc": "Reduces resource costs during exploration by 25%", "cost": 12, "costResource": "materials", "unlock": { "type": "resource", "id": "materials", "amount": 15 }, "effect": { "type": "exploration_modifier", "attribute": "efficiency", "value": 0.75 }, "discovered": false },
+    { "id": "medical_training", "name": "Basic Medical Training", "desc": "Unlocks medicine production and improves health recovery", "cost": 25, "costResource": "materials", "unlock": { "type": "resource", "id": "research", "amount": 10 }, "effect": { "type": "unlock", "target": "medicine" }, "discovered": false },
+    { "id": "advanced_hydro", "name": "Advanced Hydroponics", "desc": "Hydroponic pods produce 75% more food", "cost": 20, "costResource": "materials", "unlock": { "type": "producer", "id": "hydroponic_pod", "count": 2 }, "effect": { "type": "multiplier", "target": "hydroponic_pod", "value": 1.75 }, "discovered": false }
   ]
 }
