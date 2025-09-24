@@ -31,6 +31,17 @@ export type Exploration = {
   recentDiscoveries?: { resourceId: string, amount: number }[]
 }
 
+export type Expedition = {
+  id: string
+  name: string
+  desc?: string
+  duration: number // seconds
+  costs?: { resourceId: string, amount: number }[]
+  unlock?: { type: string, id?: string, amount?: number }
+  discovered?: boolean
+  difficulty?: number // 1-10, affects find odds
+}
+
 export type Colonist = {
   id: string
   name: string

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "nearby_ruins",
+    "name": "Nearby Ruins",
+    "desc": "Search the nearby ruined neighborhood for salvageable materials.",
+    "duration": 15,
+    "costs": [ { "resourceId": "food", "amount": 8 }, { "resourceId": "water", "amount": 4 } ],
+    "unlock": { "type": "resource", "id": "materials", "amount": 0 },
+    "discovered": true,
+    "difficulty": 2
+  },
+  {
+    "id": "abandoned_factory",
+    "name": "Abandoned Factory",
+    "desc": "A larger site with a chance to find electronics, tools, or fuel.",
+    "duration": 45,
+    "costs": [ { "resourceId": "food", "amount": 20 }, { "resourceId": "water", "amount": 12 } ],
+    "unlock": { "type": "resource", "id": "materials", "amount": 10 },
+    "discovered": false,
+    "difficulty": 5
+  },
+  {
+    "id": "underground_bunker",
+    "name": "Underground Bunker",
+    "desc": "A risky but rewarding expedition with rare medical and tech finds.",
+    "duration": 90,
+    "costs": [ { "resourceId": "food", "amount": 40 }, { "resourceId": "water", "amount": 25 } ],
+    "unlock": { "type": "upgrade", "id": "medical_training", "amount": 1 },
+    "discovered": false,
+    "difficulty": 8
+  },
+  {
+    "id": "river_source",
+    "name": "River Source",
+    "desc": "Follow the river to find fresh water sources and possibly seeds.",
+    "duration": 30,
+    "costs": [ { "resourceId": "food", "amount": 12 }, { "resourceId": "water", "amount": 6 } ],
+    "unlock": { "type": "resource", "id": "water", "amount": 5 },
+    "discovered": false,
+    "difficulty": 3
+  },
+  {
+    "id": "trader_route",
+    "name": "Old Trader Route",
+    "desc": "Search along the old trade routes for luxuries and tools. Good morale boost.",
+    "duration": 60,
+    "costs": [ { "resourceId": "food", "amount": 22 }, { "resourceId": "water", "amount": 14 } ],
+    "unlock": { "type": "resource", "id": "luxuries", "amount": 0 },
+    "discovered": false,
+    "difficulty": 4
+  }
+]
