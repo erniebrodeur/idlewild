@@ -1,6 +1,6 @@
 import React from 'react'
 import { Resource, SurvivalNeed, ActiveExpedition, Expedition } from '../types/GameTypes'
-import expeditions from '../data/expeditions.json'
+import gameData from '../data/game-data.json'
 
 interface ExpeditionPanelProps {
   activeExpedition: ActiveExpedition | null
@@ -38,6 +38,8 @@ export default function ExpeditionPanel({
     })
   }
 
+  const expeditions = (gameData as any).expeditions || []
+
   return (
     <div className="panel">
       <h2 style={{ marginBottom: '1rem' }}>🧭 Expeditions</h2>
@@ -74,7 +76,7 @@ export default function ExpeditionPanel({
           <div style={{ marginBottom: '1.5rem' }}>
             <h3 style={{ marginBottom: '0.75rem', fontSize: '1.1rem' }}>Available Expeditions</h3>
             <div style={{ display: 'grid', gap: '0.75rem' }}>
-              {(expeditions as Expedition[]).map((exp) => {
+              {expeditions.map((exp: Expedition) => {
                 const unlocked = isExpeditionUnlocked(exp)
                 const affordable = hasExpeditionCosts(exp)
 

@@ -13,7 +13,7 @@ import { useIncrementalGame } from './hooks/useIncrementalGame'
 */
 
 export default function App() {
-  const { state, setState, buyProducer, clickGather, reset, purchaseUpgrade, lightCampfire, startExploration, consumeResource } = useIncrementalGame()
+  const { state, setState, buyProducer, clickGather, reset, purchaseUpgrade, lightCampfire, startExpedition, consumeResource } = useIncrementalGame()
   const [showSettings, setShowSettings] = useState(false)
   const [showDebug, setShowDebug] = useState(false)
   
@@ -28,7 +28,7 @@ export default function App() {
       onCloseDebug={() => setShowDebug(false)}
       consumeResource={consumeResource}
       lightCampfire={lightCampfire}
-      startExploration={startExploration}
+      startExpedition={startExpedition}
       clickGather={clickGather}
       purchaseUpgrade={purchaseUpgrade}
       buyProducer={buyProducer}
