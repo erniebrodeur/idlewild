@@ -185,25 +185,6 @@ export default function ExpeditionPanel({
               })}
             </div>
           </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            {gameData.survival.foraging.map((activity: any) => (
-              <button 
-                key={activity.id}
-                style={{ 
-                  fontSize: '1rem', 
-                  padding: '1rem',
-                  borderRadius: 8,
-                  backgroundColor: '#2a3a2a',
-                  border: '1px solid #4a5a4a',
-                  color: '#ccc'
-                }} 
-                onClick={() => clickGather(activity.resource, activity.baseAmount)}
-              >
-                {activity.icon} {activity.name} (+{activity.baseAmount})
-              </button>
-            ))}
-          </div>
         </div>
       )}
     </div>
