@@ -24,16 +24,15 @@ export type Campfire = {
   warmthPerTick: number
 }
 
-export type Exploration = {
-  active: boolean
+export type ActiveExpedition = {
+  expeditionId: string
   timeRemaining: number
   totalTime: number
-  recentDiscoveries?: { resourceId: string, amount: number }[]
 }
 
 export type Expedition = {
   id: string
-  name: string
+  name:string
   desc?: string
   duration: number // seconds
   costs?: { resourceId: string, amount: number }[]
@@ -81,7 +80,7 @@ export type GameState = {
     needs: SurvivalNeed[]
     colonists: Colonist[]
     campfire: Campfire
-    exploration: Exploration
+    activeExpedition: ActiveExpedition | null
   }
   lastSaved: number
 }

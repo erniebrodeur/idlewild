@@ -9,7 +9,7 @@ import TechnologyPanel from './TechnologyPanel'
 import SettingsPanel from './SettingsPanel'
 import DebugPanel from './DebugPanel'
 import TabsContainer, { TabDefinition } from './TabsContainer'
-import { GameState } from '../types/GameTypes'
+import { GameState, Expedition } from '../types/GameTypes'
 
 interface GameLayoutProps {
   state: GameState
@@ -21,7 +21,7 @@ interface GameLayoutProps {
   onCloseDebug: () => void
   consumeResource: (resourceId: string, amount: number) => void
   lightCampfire: () => void
-  startExploration: (duration: number) => void
+  startExpedition: (expedition: Expedition) => void
   clickGather: (resourceId: string, amount: number) => void
   purchaseUpgrade: (upgId: string) => void
   buyProducer: (pid: string) => void
@@ -39,7 +39,7 @@ export default function GameLayout({
   onCloseDebug,
   consumeResource,
   lightCampfire,
-  startExploration,
+  startExpedition,
   clickGather,
   purchaseUpgrade,
   buyProducer,
@@ -83,15 +83,14 @@ export default function GameLayout({
       )
     },
     {
-      id: 'exploration',
-      label: 'Exploration',
+      id: 'expeditions',
+      label: 'Expeditions',
       content: (
         <ExpeditionPanel
-          exploration={state.survival.exploration}
+          activeExpedition={state.survival.activeExpedition}
           resources={state.resources}
           needs={state.survival.needs}
-          startExploration={startExploration}
-          clickGather={clickGather}
+          startExpedition={startExpedition}
         />
       )
     },

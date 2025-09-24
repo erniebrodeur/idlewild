@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { GameState } from '../types/GameTypes'
+import { GameState, Expedition } from '../types/GameTypes'
 import { 
   calculateUpgradeEffects, 
   evaluateUpgradeUnlocks, 
@@ -29,11 +29,11 @@ export function useIncrementalGame(tickInterval = 1000) {
         savedState.upgradesDiscovered = savedState.upgradesDiscovered || []
         savedState.resources = savedState.resources || []
         savedState.producers = savedState.producers || []
-        savedState.survival = savedState.survival || { needs: [], colonists: [], campfire: { lit: false, fuel: 0, maxFuel: 100, warmthPerTick: 2 }, exploration: { active: false, timeRemaining: 0, totalTime: 0, recentDiscoveries: [] } }
+        savedState.survival = savedState.survival || { needs: [], colonists: [], campfire: { lit: false, fuel: 0, maxFuel: 100, warmthPerTick: 2 }, activeExpedition: null }
         
-        // Ensure campfire and exploration exist
+        // Ensure campfire and activeExpedition exist
         savedState.survival.campfire = savedState.survival.campfire || { lit: false, fuel: 0, maxFuel: 100, warmthPerTick: 2 }
-        savedState.survival.exploration = savedState.survival.exploration || { active: false, timeRemaining: 0, totalTime: 0, recentDiscoveries: [] }
+        savedState.survival.activeExpedition = savedState.survival.activeExpedition || null
         
         // Merge missing resources/producers and survival data
         for (const defRes of defaults.resources) {
@@ -79,58 +79,32 @@ export function useIncrementalGame(tickInterval = 1000) {
         const survival = { ...s.survival }
         const upgradeMultipliers = calculateUpgradeEffects(s.upgradesPurchased)
         
-        // Handle exploration timer
-        if (survival.exploration.active && survival.exploration.timeRemaining > 0) {
-          survival.exploration.timeRemaining -= 1
+        // Handle expedition timer
+        if (survival.activeExpedition && survival.activeExpedition.timeRemaining > 0) {
+          survival.activeExpedition.timeRemaining -= 1
+
+          // Survival drain during expedition
+          survival.needs = updateMultipleSurvivalNeeds(survival.needs, [
+            { id: 'hunger', delta: -0.5 }, // Example drain
+            { id: 'thirst', delta: -0.75 }
+          ])
+
+          // Check for failure
+          if (survival.needs.some(n => n.current <= 0)) {
+            console.log('Expedition failed!')
+            survival.activeExpedition = null
+          }
           
-          // When exploration completes
-          if (survival.exploration.timeRemaining <= 0) {
-            survival.exploration.active = false
-            
-            // Check all resources for potential discovery based on findChance using configurable discovery settings
-            const explorationDuration = survival.exploration.totalTime
-            const discoverySettings = gameData.survival.exploration.discovery
-            const baseLuckFactor = Math.min(explorationDuration / discoverySettings.baseLuckDivisor, discoverySettings.maxLuckFactor)
-            const discoveries: { resourceId: string, amount: number }[] = []
-            
-            for (const resource of resources) {
-              if (resource.findChance && resource.findChance > 0) {
-                // Calculate actual find chance: base chance * luck factor * random roll
-                const effectiveChance = resource.findChance * (1 + baseLuckFactor * discoverySettings.luckMultiplier)
-                if (Math.random() < effectiveChance) {
-                  // Amount found scales with exploration time and resource rarity
-                  const baseAmount = Math.max(1, Math.floor(explorationDuration / discoverySettings.baseAmountDivisor))
-                  const rarityBonus = resource.findChance > discoverySettings.commonResourceThreshold ? discoverySettings.commonResourceBonus : 1
-                  const amountFound = baseAmount * rarityBonus + Math.floor(Math.random() * discoverySettings.randomAmountRange)
-                  
-                  resource.amount += amountFound
-                  resource.discovered = true
-                  discoveries.push({ resourceId: resource.id, amount: amountFound })
-                }
-              }
-            }
-            
-            // Store discoveries for display
-            survival.exploration.recentDiscoveries = discoveries
-            
-            // Clear discoveries after configurable time
-            setTimeout(() => {
-              setState((s) => ({
-                ...s,
-                survival: {
-                  ...s.survival,
-                  exploration: {
-                    ...s.survival.exploration,
-                    recentDiscoveries: []
-                  }
-                }
-              }))
-            }, discoverySettings.discoveryDisplayTime)
+          // When expedition completes
+          if (survival.activeExpedition && survival.activeExpedition.timeRemaining <= 0) {
+            console.log(`Expedition ${survival.activeExpedition.expeditionId} succeeded!`)
+            // TODO: Add rewards based on expedition data
+            survival.activeExpedition = null
           }
         }
         
-        // Handle campfire - provides warmth when lit and not exploring
-        if (survival.campfire.lit && survival.campfire.fuel > 0 && !survival.exploration.active) {
+        // Handle campfire - provides warmth when lit
+        if (survival.campfire.lit && survival.campfire.fuel > 0) {
           survival.campfire.fuel = Math.max(0, survival.campfire.fuel - 1)
           const warmthNeed = survival.needs.find(n => n.id === 'warmth')
           if (warmthNeed) {
@@ -299,57 +273,23 @@ export function useIncrementalGame(tickInterval = 1000) {
     })
   }
 
-  function startExploration(duration: number) {
+  function startExpedition(expedition: Expedition) {
     setState((s) => {
-      // Check if we have enough resources for exploration using configurable multipliers
-      const costMultipliers = gameData.survival.exploration.costMultipliers
-      const foodCost = duration * costMultipliers.food
-      const waterCost = duration * costMultipliers.water
-      const warmthCost = duration * costMultipliers.warmth
-      
-      const costs = [
-        { id: 'food', amount: foodCost },
-        { id: 'water', amount: waterCost }
-      ]
-      
-      const warmthNeed = s.survival.needs.find(n => n.id === 'warmth')
-      
-      if (!hasEnoughResources(s.resources, costs) || 
-          !warmthNeed || warmthNeed.current < warmthCost) {
+      if (s.survival.activeExpedition) return s // Already on an expedition
+
+      const costs = expedition.costs || []
+      if (!hasEnoughResources(s.resources, costs.map(c => ({ id: c.resourceId, amount: c.amount })))) {
         return s
       }
-      
-      // Apply exploration efficiency upgrades
-      let efficiency = 1.0
-      const explorationUpgrades = gameData.upgrades?.filter((u: any) => 
-        s.upgradesPurchased.includes(u.id) && u.effect?.type === 'exploration_modifier'
-      ) || []
-      
-      for (const upg of explorationUpgrades) {
-        if (upg.effect?.attribute === 'efficiency' && upg.effect.value) {
-          efficiency *= upg.effect.value
-        }
-      }
-      
-      const actualFoodCost = foodCost * efficiency
-      const actualWaterCost = waterCost * efficiency
-      const actualWarmthCost = warmthCost * efficiency
-      
-      const resources = updateMultipleResources(s.resources, [
-        { id: 'food', delta: -actualFoodCost },
-        { id: 'water', delta: -actualWaterCost }
-      ])
-      
+
+      const resources = updateMultipleResources(s.resources, costs.map(c => ({ id: c.resourceId, delta: -c.amount })))
+
       const survival = { ...s.survival }
-      survival.exploration.active = true
-      survival.exploration.timeRemaining = duration
-      survival.exploration.totalTime = duration
-      
-      survival.needs = updateMultipleSurvivalNeeds(survival.needs, [
-        { id: 'hunger', delta: -actualFoodCost * 2 },
-        { id: 'thirst', delta: -actualWaterCost * 2 },
-        { id: 'warmth', delta: -actualWarmthCost * 2 }
-      ])
+      survival.activeExpedition = {
+        expeditionId: expedition.id,
+        timeRemaining: expedition.duration,
+        totalTime: expedition.duration
+      }
       
       return { ...s, resources, survival }
     })
@@ -381,5 +321,5 @@ export function useIncrementalGame(tickInterval = 1000) {
     localStorage.removeItem(SAVE_KEY)
   }
 
-  return { state, setState, buyProducer, clickGather, reset, purchaseUpgrade, lightCampfire, startExploration, consumeResource }
+  return { state, setState, buyProducer, clickGather, reset, purchaseUpgrade, lightCampfire, startExpedition, consumeResource }
 }

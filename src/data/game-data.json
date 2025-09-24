@@ -61,10 +61,6 @@
       { "id": "forage_food", "name": "Forage for Food", "resource": "food", "baseAmount": 0.5, "icon": "🍎" },
       { "id": "collect_water", "name": "Collect Water", "resource": "water", "baseAmount": 0.3, "icon": "💧" }
     ],
-    "explorationTypes": [
-      { "id": "quick_scout", "name": "Quick Scout", "duration": 10, "foodCost": 5, "waterCost": 3, "warmthCost": 4, "icon": "🏃" },
-      { "id": "long_expedition", "name": "Long Expedition", "duration": 30, "foodCost": 15, "waterCost": 9, "warmthCost": 12, "icon": "🎒" }
-    ],
     "consumption": {
       "food": { "hungerRestore": 25 },
       "water": { "thirstRestore": 30 }
