@@ -37,6 +37,8 @@ export type Expedition = {
   duration: number // seconds
   costs?: { resourceId: string, amount: number }[]
   unlock?: { type: string, id?: string, amount?: number }
+  drain?: { hunger?: number, thirst?: number, warmth?: number }
+  rewards?: { resourceId: string, min?: number, max?: number }[]
   discovered?: boolean
   difficulty?: number // 1-10, affects find odds
 }
@@ -76,6 +78,7 @@ export type GameState = {
   producers: Producer[]
   upgradesPurchased: string[]
   upgradesDiscovered: string[]
+  expeditions: Expedition[]
   survival: {
     needs: SurvivalNeed[]
     colonists: Colonist[]

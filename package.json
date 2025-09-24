@@ -4,15 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --force",
+    "dev:nocache": "vite --force --host",
     "build": "vite build",
     "build:watch": "chokidar 'src/**/*' -c \"npm run build\"",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "livereload": "concurrently \"npm run build:watch\" \"live-server --root=dist --port=5173 --watch=dist\"",
+    "livereload": "concurrently \"npm run build:watch\" \"live-server --root=dist --port=5173 --watch=dist --no-browser\"",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview --host"
   },
   "dependencies": {
     "react": "^19.1.1",

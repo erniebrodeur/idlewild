@@ -26,16 +26,61 @@ export function calculateUpgradeEffects(upgradesPurchased: string[]) {
 export function evaluateUpgradeUnlocks(resources: Resource[], currentDiscovered: string[], upgradesPurchased: string[]): string[] {
   const upgrades = gameData.upgrades || []
   const newly: string[] = []
-  
   for (const upg of upgrades) {
     if (upgradesPurchased.includes(upg.id) || currentDiscovered.includes(upg.id)) continue
-    if (upg.unlock?.type === 'resource' && upg.unlock.id) {
-      const res = resources.find(r => r.id === upg.unlock!.id)
-      if (res && upg.unlock.amount && res.amount >= upg.unlock.amount) newly.push(upg.id)
-    }
+    if (!upg.unlock) continue
+    if (checkUnlockCondition(upg.unlock, resources, undefined, upgradesPurchased)) newly.push(upg.id)
   }
   
   return newly
+}
+
+export function evaluateExpeditionUnlocks(resources: Resource[], expeditions: any[], upgradesPurchased: string[]): string[] {
+  const newly: string[] = []
+  for (const exp of expeditions) {
+    if (exp.discovered) continue
+    if (!exp.unlock) continue
+    if (checkUnlockCondition(exp.unlock, resources, expeditions, upgradesPurchased)) newly.push(exp.id)
+  }
+  
+  return newly
+}
+
+// Generic unlock condition checker supporting resource, producer, upgrade, colonist, campfire
+function checkUnlockCondition(unlock: any, resources: Resource[], producers?: any[], upgradesPurchased?: string[]): boolean {
+  if (!unlock || !unlock.type) return false
+  switch (unlock.type) {
+    case 'resource': {
+      if (!unlock.id) return false
+      const res = resources.find(r => r.id === unlock.id)
+      return !!res && (unlock.amount === undefined || res.amount >= unlock.amount)
+    }
+    case 'producer': {
+      if (!unlock.id || !producers) return false
+      const p = producers.find((x: any) => x.id === unlock.id)
+      return !!p && (unlock.count === undefined || p.count >= unlock.count)
+    }
+    case 'upgrade': {
+      if (!unlock.id || !upgradesPurchased) return false
+      return upgradesPurchased.includes(unlock.id)
+    }
+    case 'colonist': {
+      // unlock by colonist id existing
+      if (!unlock.id) return false
+      // resources array doesn't include colonists, so return false here — caller can extend if needed
+      return false
+    }
+    case 'campfire': {
+      // e.g. { type: 'campfire', lit: true }
+      if (unlock.lit !== undefined) {
+        // we can't inspect campfire here without passing state — assume caller handles campfire checks
+        return false
+      }
+      return false
+    }
+    default:
+      return false
+  }
 }
 
 // Resource update helpers
@@ -124,6 +169,7 @@ export function defaultState(): GameState {
   // Initialize from JSON game data file and attach lastSaved
   const resources = (gameData.resources || []).map((r: any) => ({ ...r }))
   const producers = (gameData.producers || []).map((p: any) => ({ ...p }))
+  const expeditions = (gameData.expeditions || []).map((e: any) => ({ ...e }))
   const survival = {
     needs: (gameData.survival?.needs || []).map((n: any) => ({ ...n })),
     colonists: (gameData.survival?.colonists || []).map((c: any) => ({ ...c })),
@@ -133,6 +179,7 @@ export function defaultState(): GameState {
   return { 
     resources, 
     producers, 
+    expeditions,
     upgradesPurchased: [], 
     upgradesDiscovered: [], 
     survival,

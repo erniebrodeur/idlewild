@@ -90,6 +90,7 @@ export default function GameLayout({
           activeExpedition={state.survival.activeExpedition}
           resources={state.resources}
           needs={state.survival.needs}
+          expeditions={state.expeditions}
           startExpedition={startExpedition}
         />
       )
