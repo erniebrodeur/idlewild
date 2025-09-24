@@ -42,6 +42,14 @@ export type Expedition = {
   difficulty?: number // 1-10, affects find odds
 }
 
+export type ForagingActivity = {
+  id: string
+  name: string
+  resource: string
+  baseAmount: number
+  icon: string
+}
+
 export type Colonist = {
   id: string
   name: string

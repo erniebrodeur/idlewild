@@ -1,7 +1,9 @@
 import React from 'react'
-import { Resource, SurvivalNeed, Exploration } from '../types/GameTypes'
+import { Resource, SurvivalNeed, Exploration, Expedition } from '../types/GameTypes'
+import gameData from '../data/game-data.json'
+import expeditions from '../data/expeditions.json'
 
-interface ExplorationPanelProps {
+interface ExpeditionPanelProps {
   exploration: Exploration
   resources: Resource[]
   needs: SurvivalNeed[]
@@ -9,31 +11,48 @@ interface ExplorationPanelProps {
   clickGather: (resourceId: string, amount: number) => void
 }
 
-export default function ExplorationPanel({ 
+export default function ExpeditionPanel({ 
   exploration, 
   resources, 
   needs, 
   startExploration, 
   clickGather 
-}: ExplorationPanelProps) {
-  const foodResource = resources.find(r => r.id === 'food')
-  const waterResource = resources.find(r => r.id === 'water')
-  const warmthNeed = needs.find(n => n.id === 'warmth')
+}: ExpeditionPanelProps) {
+  const foodResource = resources.find((r: Resource) => r.id === 'food')
+  const waterResource = resources.find((r: Resource) => r.id === 'water')
+  const warmthNeed = needs.find((n: SurvivalNeed) => n.id === 'warmth')
 
-  const canQuickScout = foodResource && foodResource.amount >= 5 &&
-                       waterResource && waterResource.amount >= 3 &&
-                       warmthNeed && warmthNeed.current >= 4
+  function canAffordExploration(expType: any) {
+    return foodResource && foodResource.amount >= expType.foodCost &&
+           waterResource && waterResource.amount >= expType.waterCost &&
+           warmthNeed && warmthNeed.current >= expType.warmthCost
+  }
 
-  const canLongExpedition = foodResource && foodResource.amount >= 15 &&
-                           waterResource && waterResource.amount >= 9 &&
-                           warmthNeed && warmthNeed.current >= 12
+  function isExpeditionUnlocked(exp: Expedition) {
+    if (!exp.unlock) return true
+    const type = exp.unlock.type
+    if (type === 'resource') {
+      const r = resources.find((rr: Resource) => rr.id === exp.unlock!.id)
+      return !!r && (r.amount >= (exp.unlock!.amount || 0))
+    }
+    if (type === 'upgrade') {
+      return false
+    }
+    return true
+  }
+
+  function hasExpeditionCosts(exp: Expedition) {
+    if (!exp.costs || exp.costs.length === 0) return true
+    return exp.costs.every(c => {
+      const r = resources.find((rr: Resource) => rr.id === c.resourceId)
+      return !!r && r.amount >= c.amount
+    })
+  }
 
   return (
     <div className="panel">
-      <h2 style={{ marginBottom: '1rem' }}>🔍 Exploration Operations</h2>
-      <p style={{ color: '#aaa', marginBottom: '1.5rem', fontSize: '1rem' }}>
-        Venture into the wilderness to discover various resources. Costs food, water, and warmth!
-      </p>
+      <h2 style={{ marginBottom: '1rem' }}>🧭 Expeditions</h2>
+
       
       {exploration.active ? (
         <div>
@@ -77,7 +96,7 @@ export default function ExplorationPanel({
               <p style={{ color: '#aaa', marginBottom: '0.5rem', fontSize: '0.9rem' }}>You discovered:</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                 {exploration.recentDiscoveries?.map((discovery: { resourceId: string, amount: number }, index: number) => {
-                  const resource = resources.find(r => r.id === discovery.resourceId)
+                  const resource = resources.find((r: Resource) => r.id === discovery.resourceId)
                   return (
                     <span key={index} style={{ 
                       backgroundColor: '#3a5a3a',
@@ -95,70 +114,95 @@ export default function ExplorationPanel({
           )}
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-            <button 
-              style={{ 
-                fontSize: '1.1rem', 
-                padding: '1.5rem',
-                borderRadius: 10,
-                backgroundColor: '#2a4a2a',
-                border: '1px solid #4a6a4a',
-                color: '#ccc'
-              }} 
-              onClick={() => startExploration(10)}
-              disabled={!canQuickScout}
-            >
-              <div>🏃 Quick Scout</div>
-              <div style={{ fontSize: '0.9rem', color: '#aaa', marginTop: '0.5rem' }}>
-                10 seconds<br/>
-                -5 food, -3 water, -4 warmth
-              </div>
-            </button>
-            <button 
-              style={{ 
-                fontSize: '1.1rem', 
-                padding: '1.5rem',
-                borderRadius: 10,
-                backgroundColor: '#4a2a2a',
-                border: '1px solid #6a4a4a',
-                color: '#ccc'
-              }} 
-              onClick={() => startExploration(30)}
-              disabled={!canLongExpedition}
-            >
-              <div>🎒 Long Expedition</div>
-              <div style={{ fontSize: '0.9rem', color: '#aaa', marginTop: '0.5rem' }}>
-                30 seconds<br/>
-                -15 food, -9 water, -12 warmth
-              </div>
-            </button>
+            {gameData.survival.explorationTypes.map((expType: any) => (
+              <button 
+                key={expType.id}
+                style={{ 
+                  fontSize: '1.1rem', 
+                  padding: '1.5rem',
+                  borderRadius: 10,
+                  backgroundColor: expType.id === 'quick_scout' ? '#2a4a2a' : '#4a2a2a',
+                  border: expType.id === 'quick_scout' ? '1px solid #4a6a4a' : '1px solid #6a4a4a',
+                  color: '#ccc'
+                }} 
+                onClick={() => startExploration(expType.duration)}
+                disabled={!canAffordExploration(expType)}
+              >
+                <div>{expType.icon} {expType.name}</div>
+                <div style={{ fontSize: '0.9rem', color: '#aaa', marginTop: '0.5rem' }}>
+                  {expType.duration} seconds<br/>
+                  -{expType.foodCost} food, -{expType.waterCost} water, -{expType.warmthCost} warmth
+                </div>
+              </button>
+            ))}
           </div>
+          
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h3 style={{ marginBottom: '0.75rem', fontSize: '1.1rem' }}>Targeted Expeditions</h3>
+            <div style={{ display: 'grid', gap: '0.75rem' }}>
+              {(expeditions as Expedition[]).map((exp) => {
+                const unlocked = isExpeditionUnlocked(exp)
+                const affordable = hasExpeditionCosts(exp)
+
+                return (
+                  <div key={exp.id} style={{
+                    padding: '0.75rem',
+                    borderRadius: 8,
+                    backgroundColor: unlocked ? '#222' : '#1a1a1a',
+                    border: '1px solid ' + (unlocked ? '#3a6' : '#333')
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontSize: '1.05rem', fontWeight: '600' }}>{exp.name}</div>
+                        <div style={{ fontSize: '0.85rem', color: '#999' }}>{exp.desc}</div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ color: '#ccc', fontSize: '0.9rem' }}>{exp.duration}s</div>
+                        <button
+                          onClick={() => startExploration(exp.duration)}
+                          disabled={!unlocked || !affordable}
+                          style={{
+                            marginTop: 8,
+                            padding: '0.4rem 0.6rem',
+                            borderRadius: 6,
+                            backgroundColor: unlocked && affordable ? '#356' : '#333',
+                            color: '#fff',
+                            border: 'none'
+                          }}
+                        >
+                          {unlocked ? (affordable ? 'Start' : 'Need Resources') : 'Locked'}
+                        </button>
+                      </div>
+                    </div>
+
+                    {exp.costs && exp.costs.length > 0 && (
+                      <div style={{ marginTop: 8, color: '#aaa', fontSize: '0.85rem' }}>
+                        Costs: {exp.costs.map(c => `${c.amount} ${c.resourceId}`).join(', ')}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <button 
-              style={{ 
-                fontSize: '1rem', 
-                padding: '1rem',
-                borderRadius: 8,
-                backgroundColor: '#2a3a2a',
-                border: '1px solid #4a5a4a',
-                color: '#ccc'
-              }} 
-              onClick={() => clickGather('food', 0.5)}
-            >
-              🍎 Forage for Food (+0.5)
-            </button>
-            <button 
-              style={{ 
-                fontSize: '1rem', 
-                padding: '1rem',
-                borderRadius: 8,
-                backgroundColor: '#2a3a3a',
-                border: '1px solid #4a5a5a',
-                color: '#ccc'
-              }} 
-              onClick={() => clickGather('water', 0.3)}
-            >
-              💧 Collect Water (+0.3)
-            </button>
+            {gameData.survival.foraging.map((activity: any) => (
+              <button 
+                key={activity.id}
+                style={{ 
+                  fontSize: '1rem', 
+                  padding: '1rem',
+                  borderRadius: 8,
+                  backgroundColor: '#2a3a2a',
+                  border: '1px solid #4a5a4a',
+                  color: '#ccc'
+                }} 
+                onClick={() => clickGather(activity.resource, activity.baseAmount)}
+              >
+                {activity.icon} {activity.name} (+{activity.baseAmount})
+              </button>
+            ))}
           </div>
         </div>
       )}

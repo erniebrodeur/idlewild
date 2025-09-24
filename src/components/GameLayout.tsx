@@ -3,7 +3,6 @@ import GameHeader from './GameHeader'
 import ResourcesSidebar from './ResourcesSidebar'
 import SurvivalStatus from './SurvivalStatus'
 import CampfirePanel from './CampfirePanel'
-import ExplorationPanel from './ExplorationPanel'
 import ExpeditionPanel from './ExpeditionPanel'
 import TechnologyPanel from './TechnologyPanel'
 import SettingsPanel from './SettingsPanel'
@@ -103,17 +102,12 @@ export default function GameLayout({
             flexDirection: 'column', 
             gap: '1.5rem' 
           }}>
-            <ExplorationPanel
+            <ExpeditionPanel
               exploration={state.survival.exploration}
               resources={state.resources}
               needs={state.survival.needs}
               startExploration={startExploration}
               clickGather={clickGather}
-            />
-            <ExpeditionPanel
-              resources={state.resources}
-              needs={state.survival.needs}
-              startExploration={startExploration}
             />
             <TechnologyPanel
               upgradesDiscovered={state.upgradesDiscovered}

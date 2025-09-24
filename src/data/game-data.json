@@ -33,12 +33,41 @@
       "lit": false,
       "fuel": 0,
       "maxFuel": 100,
-      "warmthPerTick": 2
+      "warmthPerTick": 2,
+      "lightCost": 2,
+      "fuelAdded": 50
     },
     "exploration": {
       "active": false,
       "timeRemaining": 0,
-      "totalTime": 0
+      "totalTime": 0,
+      "costMultipliers": {
+        "food": 0.5,
+        "water": 0.3,
+        "warmth": 0.4
+      },
+      "discovery": {
+        "baseLuckDivisor": 10,
+        "maxLuckFactor": 5,
+        "luckMultiplier": 0.2,
+        "baseAmountDivisor": 10,
+        "commonResourceThreshold": 0.5,
+        "commonResourceBonus": 2,
+        "randomAmountRange": 3,
+        "discoveryDisplayTime": 10000
+      }
+    },
+    "foraging": [
+      { "id": "forage_food", "name": "Forage for Food", "resource": "food", "baseAmount": 0.5, "icon": "🍎" },
+      { "id": "collect_water", "name": "Collect Water", "resource": "water", "baseAmount": 0.3, "icon": "💧" }
+    ],
+    "explorationTypes": [
+      { "id": "quick_scout", "name": "Quick Scout", "duration": 10, "foodCost": 5, "waterCost": 3, "warmthCost": 4, "icon": "🏃" },
+      { "id": "long_expedition", "name": "Long Expedition", "duration": 30, "foodCost": 15, "waterCost": 9, "warmthCost": 12, "icon": "🎒" }
+    ],
+    "consumption": {
+      "food": { "hungerRestore": 25 },
+      "water": { "thirstRestore": 30 }
     }
   },
   "producers": [

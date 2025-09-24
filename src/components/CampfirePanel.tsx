@@ -1,4 +1,5 @@
 import React from 'react'
+import gameData from '../data/game-data.json'
 
 type Resource = {
   id: string
@@ -24,7 +25,8 @@ interface CampfirePanelProps {
 
 export default function CampfirePanel({ campfire, resources, lightCampfire }: CampfirePanelProps) {
   const materialsResource = resources.find(r => r.id === 'materials')
-  const canLightCampfire = materialsResource && materialsResource.amount >= 2
+  const lightCost = gameData.survival.campfire.lightCost
+  const canLightCampfire = materialsResource && materialsResource.amount >= lightCost
 
   return (
     <div className="panel">
@@ -64,7 +66,7 @@ export default function CampfirePanel({ campfire, resources, lightCampfire }: Ca
           fontWeight: 'bold'
         }}
       >
-        {campfire.lit ? '🔥 Add Fuel' : '🔥 Light Campfire'} (2 Materials)
+        {campfire.lit ? '🔥 Add Fuel' : '🔥 Light Campfire'} ({lightCost} Materials)
       </button>
       <p style={{ fontSize: '0.9rem', color: '#888', marginTop: 12, textAlign: 'center' }}>
         Provides warmth when lit and you're not exploring

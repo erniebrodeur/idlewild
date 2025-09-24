@@ -87,20 +87,21 @@ export function useIncrementalGame(tickInterval = 1000) {
           if (survival.exploration.timeRemaining <= 0) {
             survival.exploration.active = false
             
-            // Check all resources for potential discovery based on findChance
+            // Check all resources for potential discovery based on findChance using configurable discovery settings
             const explorationDuration = survival.exploration.totalTime
-            const baseLuckFactor = Math.min(explorationDuration / 10, 5) // Longer expeditions give better odds, capped at 5x
+            const discoverySettings = gameData.survival.exploration.discovery
+            const baseLuckFactor = Math.min(explorationDuration / discoverySettings.baseLuckDivisor, discoverySettings.maxLuckFactor)
             const discoveries: { resourceId: string, amount: number }[] = []
             
             for (const resource of resources) {
               if (resource.findChance && resource.findChance > 0) {
                 // Calculate actual find chance: base chance * luck factor * random roll
-                const effectiveChance = resource.findChance * (1 + baseLuckFactor * 0.2)
+                const effectiveChance = resource.findChance * (1 + baseLuckFactor * discoverySettings.luckMultiplier)
                 if (Math.random() < effectiveChance) {
                   // Amount found scales with exploration time and resource rarity
-                  const baseAmount = Math.max(1, Math.floor(explorationDuration / 10))
-                  const rarityBonus = resource.findChance > 0.5 ? 2 : 1 // Common resources give more
-                  const amountFound = baseAmount * rarityBonus + Math.floor(Math.random() * 3)
+                  const baseAmount = Math.max(1, Math.floor(explorationDuration / discoverySettings.baseAmountDivisor))
+                  const rarityBonus = resource.findChance > discoverySettings.commonResourceThreshold ? discoverySettings.commonResourceBonus : 1
+                  const amountFound = baseAmount * rarityBonus + Math.floor(Math.random() * discoverySettings.randomAmountRange)
                   
                   resource.amount += amountFound
                   resource.discovered = true
@@ -112,7 +113,7 @@ export function useIncrementalGame(tickInterval = 1000) {
             // Store discoveries for display
             survival.exploration.recentDiscoveries = discoveries
             
-            // Clear discoveries after 10 seconds
+            // Clear discoveries after configurable time
             setTimeout(() => {
               setState((s) => ({
                 ...s,
@@ -124,7 +125,7 @@ export function useIncrementalGame(tickInterval = 1000) {
                   }
                 }
               }))
-            }, 10000)
+            }, discoverySettings.discoveryDisplayTime)
           }
         }
         
@@ -285,13 +286,14 @@ export function useIncrementalGame(tickInterval = 1000) {
 
   function lightCampfire() {
     setState((s) => {
-      if (!hasEnoughResource(s.resources, 'materials', 2)) return s
+      const campfireSettings = gameData.survival.campfire
+      if (!hasEnoughResource(s.resources, 'materials', campfireSettings.lightCost)) return s
       
       const survival = { ...s.survival }
       survival.campfire.lit = true
-      survival.campfire.fuel = Math.min(survival.campfire.maxFuel, survival.campfire.fuel + 50)
+      survival.campfire.fuel = Math.min(survival.campfire.maxFuel, survival.campfire.fuel + campfireSettings.fuelAdded)
       
-      const resources = updateResourceAmount(s.resources, 'materials', -2)
+      const resources = updateResourceAmount(s.resources, 'materials', -campfireSettings.lightCost)
       
       return { ...s, resources, survival }
     })
@@ -299,10 +301,11 @@ export function useIncrementalGame(tickInterval = 1000) {
 
   function startExploration(duration: number) {
     setState((s) => {
-      // Check if we have enough resources for exploration
-      const foodCost = duration * 0.5
-      const waterCost = duration * 0.3
-      const warmthCost = duration * 0.4
+      // Check if we have enough resources for exploration using configurable multipliers
+      const costMultipliers = gameData.survival.exploration.costMultipliers
+      const foodCost = duration * costMultipliers.food
+      const waterCost = duration * costMultipliers.water
+      const warmthCost = duration * costMultipliers.warmth
       
       const costs = [
         { id: 'food', amount: foodCost },
@@ -359,13 +362,14 @@ export function useIncrementalGame(tickInterval = 1000) {
       const resources = updateResourceAmount(s.resources, resourceId, -amount)
       const survival = { ...s.survival }
       
-      // Restore needs based on what was consumed
-      if (resourceId === 'food') {
-        survival.needs = updateSurvivalNeed(survival.needs, 'hunger', amount * 25)
+      // Restore needs based on what was consumed using configurable values
+      const consumption = gameData.survival.consumption
+      if (resourceId === 'food' && consumption.food) {
+        survival.needs = updateSurvivalNeed(survival.needs, 'hunger', amount * consumption.food.hungerRestore)
       }
       
-      if (resourceId === 'water') {
-        survival.needs = updateSurvivalNeed(survival.needs, 'thirst', amount * 30)
+      if (resourceId === 'water' && consumption.water) {
+        survival.needs = updateSurvivalNeed(survival.needs, 'thirst', amount * consumption.water.thirstRestore)
       }
       
       return { ...s, resources, survival }
