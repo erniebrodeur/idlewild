@@ -162,12 +162,6 @@ export default function ExplorationPanel({
           </div>
         </div>
       )}
-
-      <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid #444' }}>
-        <p style={{ fontSize: '0.95rem', color: '#888', textAlign: 'center', fontStyle: 'italic' }}>
-          Use the Settings panel (⚙️) to access emergency reset and game data management
-        </p>
-      </div>
     </div>
   )
 }
